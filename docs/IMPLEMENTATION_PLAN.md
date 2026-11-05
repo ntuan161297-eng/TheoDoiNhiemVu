@@ -1,6 +1,8 @@
 # KẾ HOẠCH TRIỂN KHAI — THEO DÕI VÀ ĐÔN ĐỐC NHIỆM VỤ UBND XÃ HƯƠNG ĐÔ
 
-Trạng thái: Chủ sản phẩm đã phê duyệt bản phân tích trong hội thoại ngày 05/11/2026 và cho phép triển khai **chỉ Chặng 1 — UI mock**. Tài liệu này lưu kế hoạch đã thống nhất; các chặng 2–4 chưa được phép bắt đầu.
+Trạng thái cập nhật 05/11/2026: Chặng 1 UI mock đã hoàn thành và được chủ sản phẩm nghiệm thu. Chủ sản phẩm đã duyệt kiến trúc **Supabase**, thay ASP.NET Core/EF Core/SQL Server, và cho phép **Bước 2.2 tạo file migration/seed/SQL tests, kiểm thử tĩnh**. Bộ SQL đã tạo trong `supabase/`; **chưa chạy SQL, link Cloud, tạo Admin hoặc nối Auth/CRUD/Dashboard vào frontend**. Chờ phê duyệt chạy migration; Chặng 3–4 tiếp tục cần duyệt riêng.
+
+Thiết kế đã duyệt: [STAGE2_SUPABASE_ARCHITECTURE.md](analysis/STAGE2_SUPABASE_ARCHITECTURE.md). Bàn giao Bước 2.2: [báo cáo migration](qa/STAGE2_MIGRATION_REVIEW.md), [hướng dẫn áp dụng](../supabase/README.md). Báo cáo môi trường .NET/SQL cũ chỉ còn giá trị lịch sử, không là điều kiện chặn hướng Supabase.
 
 ## 1. Nguồn và thứ tự ưu tiên
 
@@ -23,8 +25,8 @@ Không làm tài khoản phòng chuyên môn, giao nhận điện tử, workflow
 | Hành động | Văn phòng nhập liệu | Văn phòng xác nhận | Lãnh đạo xem | Quản trị |
 |---|---|---|---|---|
 | Xem/lọc/xuất | Có | Có | Có | Có |
-| Nhập/sửa/tiến độ/đôn đốc/đề nghị gia hạn | Có | Có | Không | Theo quyền nghiệp vụ |
-| Ghi kết quả gia hạn, xác nhận hoàn thành | Không | Có | Không | Theo quyền nghiệp vụ |
+| Nhập/sửa/tiến độ/đôn đốc/đề nghị gia hạn | Có | Có | Không | Có (đề xuất Supabase) |
+| Ghi kết quả gia hạn, xác nhận hoàn thành | Không | Có | Không | Có (đề xuất Supabase) |
 | Tài khoản/danh mục/cấu hình | Không | Không | Không | Có |
 | Xóa audit | Không | Không | Không | Không |
 
@@ -50,7 +52,9 @@ Gia hạn: hiển thị hạn gốc/hạn hiện tại/hạn đề nghị/số n
 
 ## 5. Kiến trúc và ERD
 
-Frontend React + TypeScript + Vite + Ant Design + Recharts. Backend tương lai ASP.NET Core Web API + EF Core + SQL Server/Express; Identity, kiểm tra quyền server, cookie bảo vệ/CSRF nếu cùng tên miền. File ở kho riêng, tải qua API có quyền. Không tự chuyển SQLite.
+Frontend giữ React + TypeScript + Vite + Ant Design + Recharts, toàn bộ UI hiện có. Backend đích: Supabase PostgreSQL + Auth + Storage private + RLS; đọc qua Data API có grants/RLS, ghi liên bảng bằng PostgreSQL RPC transaction và audit. Edge Functions chỉ dùng khi cần xử lý phía server, không thay transaction DB. Không cài .NET/SQL Server, không tạo frontend mới.
+
+ERD dưới đây thể hiện quan hệ nghiệp vụ tổng quát. ERD PostgreSQL chi tiết, `auth.users`/`profiles`/`user_roles`, bảng idempotency, khóa/index, Storage và ma trận RLS nằm tại [thiết kế Supabase](analysis/STAGE2_SUPABASE_ARCHITECTURE.md). Mọi thông tin người dùng/quyền được kiểm tra tại DB; frontend chỉ dùng publishable key, không chứa secret/service_role. Chỉ seed danh mục chính thức 11/3/3; không tự đưa nhiệm vụ DEMO hay dữ liệu nội bộ lên Cloud.
 
 ```mermaid
 erDiagram
@@ -102,20 +106,19 @@ AppHeader/AppLayout: cấu trúc header/menu; KPICard: thẻ có keyboard; Filte
 
 | Chặng | Bàn giao | Điều kiện |
 |---|---|---|
-| 1 UI mock (được phép) | 5 trang + login, form/drawer/import 3 bước/đôn đốc/gia hạn; 12–20 nhiệm vụ DEMO, thao tác trong bộ nhớ | KPI tính động, drill-down đúng, đủ 11 đơn vị, responsive desktop/tablet/mobile, build và browser QA, PO duyệt |
-| 2 DB/API/Auth (chưa được phép) | SQL Server/migration/seed/Identity/CRUD/tiến độ/hoàn thành/file/audit/thống kê | Dữ liệu qua restart; API chặn sai quyền; concurrency; snapshot; báo cáo khớp |
+| 1 UI mock (đã hoàn thành) | 5 trang + login, form/drawer/import 3 bước/đôn đốc/gia hạn; nhiệm vụ DEMO trong bộ nhớ | KPI tính động, drill-down đúng, đủ 11 đơn vị, responsive desktop/tablet/mobile, build và browser QA đã có minh chứng |
+| 2 Supabase DB/Auth/RLS (2.2 đã tạo SQL, chờ duyệt apply) | PostgreSQL migration có version/seed 11-3-3/RLS/RPC/schema Storage; các bước Auth/service React/CRUD/dashboard sau apply cần triển khai tiếp theo phạm vi duyệt | Tĩnh đã kiểm tra; runtime DB quyền/concurrency/persistence/snapshot/báo cáo chưa chạy; không seed demo |
 | 3 Import/Đôn đốc/Gia hạn (chưa được phép) | Import thật/preview/log/transaction, văn bản chung, kết quả gia hạn | TC08–15/19–22/29 V1.3; không nhân bản; pending/rejected giữ hạn; approved nguyên tử |
 | 4 QA (chưa được phép) | Test tự động/UI/hướng dẫn/backup-restore | TC01–30 V1.3 và test nền V1.2 phù hợp; build/test đạt; phục hồi DB và file; không mock |
 
-Chỉ chuyển chặng sau khi kiểm tra và PO chấp thuận. Hiện chỉ được làm Chặng 1. Không backend/API/SQL/auth thật, không .NET SDK/SQL Server installation, không deploy/push.
+Chỉ chuyển chặng sau khi kiểm tra và PO chấp thuận. Bước 2.2 chỉ tạo SQL và kiểm thử tĩnh, cài parser PostgreSQL dev dependency trong project; chưa chạy migration/nối Supabase. Không tự deploy hoặc push các thay đổi này. Lần push mã trước đó được chủ sản phẩm yêu cầu riêng, không phải quyền tự push ở các lượt sau.
 
 ## 9. Quyết định còn cần chốt trước các chặng sau
 
-1. LAN/Internet, máy chủ/kho file/backup và người chịu trách nhiệm (đề xuất chạy thử LAN).
-2. Ma trận bắt buộc tài liệu theo nguồn, loại/kích thước file (đề xuất không ép số cuộc họp; đôn đốc và gia hạn có file).
-3. Hủy/đính chính quyết định gia hạn đã áp dụng, nhất là khi đã có lần duyệt tiếp hoặc hoàn thành (giữ lịch sử và snapshot).
-4. Quy mô nhiệm vụ/người dùng/import/file để chốt tiêu chí hiệu năng.
+Các quyết định còn mở hiện hành được tập trung tại mục 10 của [thiết kế Supabase](analysis/STAGE2_SUPABASE_ARCHITECTURE.md): project thử nghiệm/người phụ trách; ma trận quyền chi tiết; giới hạn file; workflow migration và môi trường DB tests; trước GĐ3 chốt đính chính gia hạn và quy mô import. Không còn yêu cầu chọn/cài máy chủ .NET/SQL để tiếp tục.
 
 ## 10. Môi trường đã kiểm tra
 
 Node v22.14.0, Git 2.56.0.windows.1; .NET runtime có nhưng SDK chưa có; chưa phát hiện instance/dịch vụ SQL Server cục bộ, sqlcmd/sqllocaldb chưa có trong PATH. Chưa kiểm tra SQL Server từ xa. Không tự cài môi trường backend.
+
+Kiểm tra Supabase trước Bước 2.2: chưa có client/config/migration/env/CLI. Nay đã tạo cấu trúc `supabase/config.toml`, sáu migrations, SQL tests/verification và hướng dẫn, cài parser dev dependency. Chưa cài Supabase client/CLI, chưa có cấu hình Cloud/secret hoặc linked project; chưa truy cập Cloud. Cấu hình local không tự thay cài đặt Dashboard.

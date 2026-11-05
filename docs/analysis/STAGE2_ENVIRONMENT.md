@@ -1,5 +1,7 @@
 # GIAI ĐOẠN 2 — KẾT QUẢ BƯỚC 2.1: MÔI TRƯỜNG VÀ SAO LƯU
 
+> **Báo cáo lịch sử, đã được thay thế về phương án triển khai.** Ngày 05/11/2026 chủ sản phẩm quyết định dùng Supabase thay .NET/SQL Server. Không cần thực hiện hướng dẫn cài đặt hoặc điều kiện tiếp tục bên dưới cho kiến trúc mới. Xem [thiết kế Supabase đang chờ duyệt](STAGE2_SUPABASE_ARCHITECTURE.md). Giữ nội dung báo cáo để truy vết kiểm tra và bản sao lưu cũ; các nhận xét về Git là trạng thái tại thời điểm kiểm tra, trước lần push đã được yêu cầu riêng.
+
 Ngày kiểm tra: 05/11/2026, giờ Việt Nam. Chủ sản phẩm đã cho phép Giai đoạn 2 trong file yêu cầu đính kèm. Quy định mới này thay thế giới hạn “chưa triển khai Chặng 2” của kế hoạch trước; vẫn cần xác nhận riêng trước khi cài phần mềm hệ thống hoặc thay đổi cấu hình máy.
 
 **Trạng thái: chưa đủ điều kiện môi trường; dừng ở Bước 2.1 để chủ sản phẩm chọn máy phù hợp và phê duyệt việc cài đặt. Chưa bắt đầu Bước 2.2–2.5.**
