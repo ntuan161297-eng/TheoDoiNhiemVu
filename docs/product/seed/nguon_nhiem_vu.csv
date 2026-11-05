@@ -1,0 +1,4 @@
+﻿code,name,sort_order,is_active
+TINH_GIAO,Nhiệm vụ tỉnh giao,1,1
+HDND,Nhiệm vụ HĐND,2,1
+KET_LUAN_CUOC_HOP,Nhiệm vụ Kết luận cuộc họp,3,1

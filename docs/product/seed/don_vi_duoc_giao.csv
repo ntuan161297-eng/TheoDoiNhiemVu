@@ -1,0 +1,12 @@
+﻿code,name,unit_kind,sort_order,is_active
+DV01,Văn phòng HĐND - UBND,CHUA_PHAN_LOAI,1,1
+DV02,Phòng Kinh tế,CHUA_PHAN_LOAI,2,1
+DV03,Phòng Văn hóa - Xã hội,CHUA_PHAN_LOAI,3,1
+DV04,Trung tâm Phục vụ hành chính công,CHUA_PHAN_LOAI,4,1
+DV05,Ban Chỉ huy Quân sự xã Hương Đô,CHUA_PHAN_LOAI,5,1
+DV06,CÔNG AN XÃ HƯƠNG ĐÔ,CHUA_PHAN_LOAI,6,1
+DV07,Điện lực Hương Khê,CHUA_PHAN_LOAI,7,1
+DV08,Trường Mầm non Hương Đô,CHUA_PHAN_LOAI,8,1
+DV09,Trung tâm dịch vụ tổng hợp,CHUA_PHAN_LOAI,9,1
+DV10,Trường TH&THCS Hương Đô,CHUA_PHAN_LOAI,10,1
+DV11,Trạm y tế xã Hương Đô,CHUA_PHAN_LOAI,11,1
