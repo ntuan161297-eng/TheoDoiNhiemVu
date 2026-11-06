@@ -1,5 +1,7 @@
 # GIAI ĐOẠN 2 — ĐỀ XUẤT KIẾN TRÚC SUPABASE
 
+> **Đã được thay thế về nền tảng bởi yêu cầu Cloudflare Pages/Functions + D1 + R2.** Tài liệu này giữ làm lịch sử thiết kế nghiệp vụ. Không chuyển PostgreSQL RPC/RLS sang D1 nguyên trạng. Supabase Auth chỉ là phương án danh tính cần đánh giá ở Chặng B. Kế hoạch hiện hành và giới hạn ở [hướng dẫn Cloudflare](../cloudflare/README.md).
+
 Ngày: 05/11/2026. **Kiến trúc đã được chủ sản phẩm duyệt; Bước 2.2 đã tạo file SQL và kiểm thử tĩnh.** Chưa chạy migration, kết nối Cloud, tạo tài khoản, đổi frontend, commit/push hoặc deploy. Nội dung bên dưới giữ thiết kế và kết quả khảo sát ban đầu; tiến độ thực tế và các chi tiết triển khai Bước 2.2 xem [báo cáo migration](../qa/STAGE2_MIGRATION_REVIEW.md), [hướng dẫn Supabase](../../supabase/README.md). Phải chờ phê duyệt riêng trước khi apply SQL.
 
 ## 1. Căn cứ, phạm vi và tình trạng cấu hình

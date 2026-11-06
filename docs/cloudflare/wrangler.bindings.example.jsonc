@@ -1,0 +1,18 @@
+// REFERENCE ONLY. Not loaded by the Stage A CLI. Fill real IDs after Stage B approval.
+// Never copy PostgreSQL/Supabase migrations into a D1 migrations directory.
+{
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "theo-doi-nhiem-vu-staging",
+      "database_id": "REPLACE_WITH_STAGING_D1_ID",
+      "migrations_dir": "cloudflare/d1/migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "DOCUMENTS",
+      "bucket_name": "theo-doi-nhiem-vu-documents-staging"
+    }
+  ]
+}

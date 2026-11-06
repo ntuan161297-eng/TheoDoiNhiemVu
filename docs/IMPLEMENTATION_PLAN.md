@@ -1,5 +1,7 @@
 # KẾ HOẠCH TRIỂN KHAI — THEO DÕI VÀ ĐÔN ĐỐC NHIỆM VỤ UBND XÃ HƯƠNG ĐÔ
 
+> **Cập nhật hiện hành 06/11/2026:** Chủ sản phẩm yêu cầu tích hợp **Cloudflare Pages + Pages Functions**, database đích **D1**, file **R2 private**, mở rộng đa Tenant; Supabase chỉ được cân nhắc làm Auth. **Chặng A đã tích hợp/kiểm tra local, chờ nghiệm thu; chưa bắt đầu B.** [Hướng dẫn chạy và triển khai](cloudflare/README.md), [báo cáo A](qa/CLOUDFLARE_STAGE_A.md). Các phần Supabase và chặng 1–4 bên dưới là kế hoạch lịch sử trước quyết định mới, không cấp quyền chạy migration/deploy. Lộ trình mới: A hạ tầng → B D1/Auth/tenant isolation → C quản trị → D nghiệp vụ → E QA/Preview/Production có duyệt. Giữ toàn bộ quy tắc nghiệp vụ V1.3.
+
 Trạng thái cập nhật 05/11/2026: Chặng 1 UI mock đã hoàn thành và được chủ sản phẩm nghiệm thu. Chủ sản phẩm đã duyệt kiến trúc **Supabase**, thay ASP.NET Core/EF Core/SQL Server, và cho phép **Bước 2.2 tạo file migration/seed/SQL tests, kiểm thử tĩnh**. Bộ SQL đã tạo trong `supabase/`; **chưa chạy SQL, link Cloud, tạo Admin hoặc nối Auth/CRUD/Dashboard vào frontend**. Chờ phê duyệt chạy migration; Chặng 3–4 tiếp tục cần duyệt riêng.
 
 Thiết kế đã duyệt: [STAGE2_SUPABASE_ARCHITECTURE.md](analysis/STAGE2_SUPABASE_ARCHITECTURE.md). Bàn giao Bước 2.2: [báo cáo migration](qa/STAGE2_MIGRATION_REVIEW.md), [hướng dẫn áp dụng](../supabase/README.md). Báo cáo môi trường .NET/SQL cũ chỉ còn giá trị lịch sử, không là điều kiện chặn hướng Supabase.

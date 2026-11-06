@@ -1,5 +1,6 @@
 import { expect, test, type Page, type Locator } from '@playwright/test';
 import { mkdir, readFile } from 'node:fs/promises';
+import { qaArtifact } from './artifacts';
 
 async function enter(page: Page, viewer = false) {
   await page.goto('/');
@@ -21,11 +22,11 @@ async function closeDrawer(page: Page) {
 
 test('Kiểm tra 5 trang trên desktop, tablet, mobile và chụp ảnh', async ({ page }) => {
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message));
-  await mkdir('docs/qa/ui-upgrade', { recursive: true });
+  await mkdir(qaArtifact(), { recursive: true });
   await page.setViewportSize({ width: 1366, height: 768 });
-  await page.goto('/'); await page.screenshot({ animations: 'disabled', path: 'docs/qa/ui-upgrade/login-desktop.png', fullPage: true });
+  await page.goto('/'); await page.screenshot({ animations: 'disabled', path: qaArtifact('login-desktop.png'), fullPage: true });
   await page.setViewportSize({ width: 1920, height: 1080 });
-  await page.screenshot({ animations: 'disabled', path: 'docs/qa/ui-upgrade/login-wide.png', fullPage: true });
+  await page.screenshot({ animations: 'disabled', path: qaArtifact('login-wide.png'), fullPage: true });
   await page.getByRole('button', { name: 'Vào giao diện DEMO' }).click();
   await expect(page.locator('.kpi-card')).toHaveCount(6);
   await expect(page.locator('.unit-table tbody tr[data-row-key]')).toHaveCount(11);
@@ -35,7 +36,7 @@ test('Kiểm tra 5 trang trên desktop, tablet, mobile và chụp ảnh', async 
     for (const route of routes) {
       await page.getByRole('navigation').getByRole('button', { name: route.label, exact: route.id !== 'expedite' }).click();
       await expect(page.locator('.page-heading h1')).toHaveText(({ dashboard: 'Tổng quan và cảnh báo', tasks: 'Quản lý nhiệm vụ', expedite: 'Nhiệm vụ cần đôn đốc', reports: 'Báo cáo tổng hợp theo đơn vị', catalog: 'Danh mục và cấu hình' })[route.id]!);
-      await page.screenshot({ animations: 'disabled', path: `docs/qa/ui-upgrade/${route.id}-${viewport.name}.png`, fullPage: true });
+      await page.screenshot({ animations: 'disabled', path: qaArtifact(`${route.id}-${viewport.name}.png`), fullPage: true });
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
       expect(overflow, `Không tràn trang tại ${route.id} ${viewport.name}`).toBeLessThanOrEqual(1);
     }
@@ -57,7 +58,7 @@ test('KPI drill-down, lọc AND, thêm/sửa, tiến độ, hoàn thành và sna
   await page.getByRole('button', { name: 'Xóa bộ lọc', exact: true }).click();
   await page.getByRole('button', { name: 'Thêm nhiệm vụ', exact: true }).click();
   let modal = page.getByRole('dialog');
-  await modal.screenshot({ animations: 'disabled', path: 'docs/qa/ui-upgrade/form-task-desktop.png' });
+  await modal.screenshot({ animations: 'disabled', path: qaArtifact('form-task-desktop.png') });
   await modal.getByRole('button', { name: 'Lưu minh họa', exact: true }).click();
   await expect(modal.locator('.ant-form-item-explain-error').first()).toBeVisible();
   await choose(page, modal.getByLabel('Nguồn nhiệm vụ', { exact: true }), 'Nhiệm vụ HĐND');
@@ -78,7 +79,7 @@ test('KPI drill-down, lọc AND, thêm/sửa, tiến độ, hoàn thành và sna
   await modal.getByLabel('Nội dung kết quả', { exact: true }).fill('Kết quả minh họa đã được Văn phòng kiểm tra.');
   await modal.getByRole('button', { name: 'Xác nhận hoàn thành · DEMO', exact: true }).click();
   await expect(page.locator('.completion-box')).toContainText('Hạn tại thời điểm xác nhận');
-  await page.screenshot({ animations: 'disabled', path: 'docs/qa/ui-upgrade/drawer-completed-desktop.png' });
+  await page.screenshot({ animations: 'disabled', path: qaArtifact('drawer-completed-desktop.png') });
   await expect(page.locator('.task-drawer .status-tag').first()).toHaveText('Đã hoàn thành');
   await page.getByRole('button', { name: 'Chỉnh sửa', exact: true }).click();
   modal = page.getByRole('dialog');
@@ -113,7 +114,7 @@ test('Văn bản đôn đốc nhiều nhiệm vụ, sửa không tăng lượt, 
   await expect(page.getByRole('tab', { name: 'Đôn đốc (4)', exact: true })).toBeVisible();
   await page.getByRole('tab', { name: 'Gia hạn', exact: true }).click();
   await expect(page.getByText('Đang xin gia hạn — vẫn tính theo hạn hiện tại', { exact: true })).toBeVisible();
-  await page.screenshot({ animations: 'disabled', path: 'docs/qa/ui-upgrade/drawer-extension-pending.png' });
+  await page.screenshot({ animations: 'disabled', path: qaArtifact('drawer-extension-pending.png') });
   const oldDue = await page.locator('.task-drawer .due-summary b').nth(1).innerText();
   const originalDue = await page.locator('.task-drawer .due-summary b').nth(0).innerText();
   await page.getByRole('button', { name: 'Ghi nhận kết quả xem xét', exact: true }).click();
@@ -143,17 +144,17 @@ test('Wizard import lỗi chặn, xác nhận dữ liệu DEMO và vai trò ch�
   await page.getByRole('navigation').getByRole('button', { name: 'Nhiệm vụ', exact: true }).click();
   await page.getByRole('button', { name: 'Import Excel', exact: true }).click();
   let modal = page.getByRole('dialog');
-  await modal.screenshot({ animations: 'disabled', path: 'docs/qa/ui-upgrade/import-step-1.png' });
+  await modal.screenshot({ animations: 'disabled', path: qaArtifact('import-step-1.png') });
   await choose(page, modal.getByRole('combobox'), '01 dòng sai đơn vị — chặn xác nhận');
   await modal.getByRole('button', { name: /Xem trước kịch bản DEMO/ }).click();
   await expect(modal.getByRole('button', { name: /Tiếp tục xác nhận/ })).toBeDisabled();
   await expect(modal.getByText('Có lỗi chặn. Chưa ghi bất kỳ nhiệm vụ nào.')).toBeVisible();
-  await modal.screenshot({ animations: 'disabled', path: 'docs/qa/ui-upgrade/import-step-2-error.png' });
+  await modal.screenshot({ animations: 'disabled', path: qaArtifact('import-step-2-error.png') });
   await modal.getByRole('button', { name: 'Quay lại / đổi kịch bản' }).click();
   await choose(page, modal.getByRole('combobox'), '03 dòng hợp lệ');
   await modal.getByRole('button', { name: /Xem trước kịch bản DEMO/ }).click();
   await modal.getByRole('button', { name: /Tiếp tục xác nhận/ }).click();
-  await modal.screenshot({ animations: 'disabled', path: 'docs/qa/ui-upgrade/import-step-3.png' });
+  await modal.screenshot({ animations: 'disabled', path: qaArtifact('import-step-3.png') });
   await modal.getByRole('button', { name: 'Xác nhận mô phỏng import' }).click();
   await expect(modal.getByText('Đã thêm 3 nhiệm vụ DEMO', { exact: true })).toBeVisible();
   await modal.getByRole('button', { name: 'Xem nhiệm vụ vừa nhập' }).click();
@@ -171,19 +172,19 @@ test('Wizard import lỗi chặn, xác nhận dữ liệu DEMO và vai trò ch�
 test('Mobile: mở biểu mẫu, cập nhật tiến độ và xem trạng thái rỗng', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  await page.screenshot({ animations: 'disabled', path: 'docs/qa/ui-upgrade/login-mobile.png', fullPage: true });
+  await page.screenshot({ animations: 'disabled', path: qaArtifact('login-mobile.png'), fullPage: true });
   await page.getByRole('button', { name: 'Vào giao diện DEMO' }).click();
   await page.getByRole('navigation').getByRole('button', { name: 'Nhiệm vụ', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Quản lý nhiệm vụ', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Thêm nhiệm vụ', exact: true }).click();
   const modal = page.getByRole('dialog');
   await expect(modal.getByLabel('Nội dung nhiệm vụ', { exact: true })).toBeVisible();
-  await modal.screenshot({ animations: 'disabled', path: 'docs/qa/ui-upgrade/form-task-mobile.png' });
+  await modal.screenshot({ animations: 'disabled', path: qaArtifact('form-task-mobile.png') });
   expect(await modal.evaluate(el => el.getBoundingClientRect().width)).toBeLessThanOrEqual(390);
   await modal.getByRole('button', { name: 'Hủy', exact: true }).click();
   await page.locator('.task-name button').first().click();
   await page.getByRole('tab', { name: 'Tiến độ', exact: true }).click();
-  await page.screenshot({ animations: 'disabled', path: 'docs/qa/ui-upgrade/drawer-progress-mobile.png' });
+  await page.screenshot({ animations: 'disabled', path: qaArtifact('drawer-progress-mobile.png') });
   await page.getByRole('button', { name: 'Cập nhật tiến độ', exact: true }).click();
   const update = page.getByRole('dialog');
   await update.getByLabel('Nội dung thực hiện', { exact: true }).fill('Cập nhật minh họa từ màn hình mobile.');
@@ -192,7 +193,7 @@ test('Mobile: mở biểu mẫu, cập nhật tiến độ và xem trạng thái
   await closeDrawer(page);
   await page.getByRole('textbox', { name: 'Tìm kiếm nhiệm vụ', exact: true }).fill('KHONG-TON-TAI-QA');
   await expect(page.getByText('Không có nhiệm vụ phù hợp', { exact: true })).toBeVisible();
-  await page.screenshot({ animations: 'disabled', path: 'docs/qa/ui-upgrade/tasks-empty-mobile.png', fullPage: true });
+  await page.screenshot({ animations: 'disabled', path: qaArtifact('tasks-empty-mobile.png'), fullPage: true });
   expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
 });
 

@@ -1,0 +1,19 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "theo-doi-nhiem-vu",
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2026-11-01",
+  "send_metrics": false,
+  // No real D1/R2 resources, credentials or remote bindings in Stage A.
+  "vars": {
+    "APP_ENV": "development"
+  },
+  "env": {
+    "preview": {
+      "vars": { "APP_ENV": "staging" }
+    },
+    "production": {
+      "vars": { "APP_ENV": "production" }
+    }
+  }
+}

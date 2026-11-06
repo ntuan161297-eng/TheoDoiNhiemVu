@@ -5,7 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "build": "tsc -b && vite build",
+    "build": "npm run check:types && vite build",
+    "check:types": "tsc -b && tsc -p tsconfig.functions.json",
+    "build:functions": "node scripts/wrangler-local.mjs pages functions build functions --outdir .local/cloudflare/functions-build",
+    "dev:pages": "npm run build && npm run pages:serve",
+    "pages:serve": "node scripts/wrangler-local.mjs pages dev dist --ip 127.0.0.1 --port 8788 --persist-to .local/cloudflare/state --show-interactive-dev-session=false --binding APP_ENV=development",
+    "prepare:pages-runtime": "powershell -NoProfile -File scripts/prepare-pages-runtime.ps1",
+    "test:ui:pages": "playwright test --config playwright.pages.config.ts",
     "preview": "vite preview --host 127.0.0.1",
     "test": "vitest run",
     "check:sql": "node scripts/check-supabase-sql.mjs",
@@ -23,6 +29,7 @@
     "recharts": "^3.10.1"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "5.20261104.1",
     "@playwright/test": "^1.51.0",
     "@types/node": "^22.13.0",
     "@types/react": "^18.3.18",
@@ -31,6 +38,7 @@
     "libpg-query": "18.2.2",
     "typescript": "~5.7.3",
     "vite": "^6.1.0",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.0",
+    "wrangler": "4.157.0"
   }
 }

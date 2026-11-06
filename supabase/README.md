@@ -1,5 +1,7 @@
 # Supabase — Bước 2.2, file migration để duyệt
 
+> **Tài liệu lịch sử.** Yêu cầu Cloudflare mới nhất chuyển database nghiệp vụ sang D1, kho file sang R2; Supabase chỉ còn được cân nhắc cho Auth ở Chặng B. Giữ nguyên các SQL PostgreSQL để tham khảo, không apply chúng vào D1 hoặc coi chúng là kế hoạch triển khai hiện hành. Xem [Cloudflare Chặng A](../docs/cloudflare/README.md).
+
 **Chỉ tạo file và kiểm tra tĩnh. Chưa link project, chạy SQL, tạo Admin, nối frontend hoặc deploy.**
 
 Mục tiêu PostgreSQL 17 trở lên; cần xác nhận version thực tế và chạy kiểm thử trên môi trường thử nghiệm phù hợp sau khi chủ sản phẩm cho phép. Không cài PostgreSQL, Docker, .NET, SQL Server hoặc thay cấu hình Windows ở bước này.

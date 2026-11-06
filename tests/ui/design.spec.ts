@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { mkdir, writeFile } from 'node:fs/promises';
+import { qaArtifact } from './artifacts';
 
 function luminance(color: string) {
   const channels = color.match(/[\d.]+/g)!.slice(0, 3).map(Number).map(v => {
@@ -12,7 +13,7 @@ function contrast(a: string, b: string) {
 }
 
 test('Design System: font tự lưu, cỡ chữ, tương phản AA và bố cục đăng nhập', async ({ page }) => {
-  await mkdir('docs/qa/ui-upgrade', { recursive: true });
+  await mkdir(qaArtifact(), { recursive: true });
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('/');
   await page.evaluate(() => document.fonts.ready);
@@ -53,7 +54,7 @@ test('Design System: font tự lưu, cỡ chữ, tương phản AA và bố cụ
     checks.push({ selector: `.status-tag:${await tag.innerText()}`, ...pair, ratio: +ratio.toFixed(2) });
     expect(ratio, JSON.stringify(checks.at(-1))).toBeGreaterThanOrEqual(4.5);
   }
-  await writeFile('docs/qa/ui-upgrade/contrast.json', JSON.stringify(checks, null, 2), 'utf8');
+  await writeFile(qaArtifact('contrast.json'), JSON.stringify(checks, null, 2), 'utf8');
   await page.getByRole('button', { name: 'Thêm nhiệm vụ', exact: true }).click();
   await expect(page.getByRole('dialog').locator('.ant-form-item-label label').first()).toHaveCSS('font-size', '14px');
   await expect(page.getByRole('dialog').locator('.ant-form-item-label label').first()).toHaveCSS('font-weight', '600');

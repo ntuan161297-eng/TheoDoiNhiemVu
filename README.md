@@ -1,6 +1,6 @@
 # Theo dõi nhiệm vụ — UBND xã Hương Đô
 
-**Chặng 1 — UI MOCK, đã nâng cấp UI/UX.** React + TypeScript + Vite + Ant Design + Recharts; Be Vietnam Pro và Lucide. Chỉ chạy local để duyệt giao diện; chưa có backend/API, SQL Server, xác thực hoặc phân quyền bảo mật.
+**Chặng A — đã tích hợp Cloudflare Pages và Pages Functions local.** Giữ UI MOCK React + TypeScript + Vite + Ant Design + Recharts, Be Vietnam Pro và Lucide. Có API hạ tầng `/api/health`; login/nghiệp vụ vẫn DEMO trong bộ nhớ, chưa có Auth thật, D1, R2 hoặc phân quyền đa Tenant. [Hướng dẫn local/Cloudflare Preview](docs/cloudflare/README.md), [báo cáo kiểm tra](docs/qa/CLOUDFLARE_STAGE_A.md).
 
 Xem [báo cáo nâng cấp và ảnh mới](docs/qa/UI_UX_UPGRADE.md). Phong cảnh nền là ảnh minh họa được tạo, không phải ảnh xác thực địa điểm/trụ sở xã; [prompt và nguồn gốc](public/assets/README.md).
 
@@ -10,10 +10,10 @@ Trong PowerShell tại thư mục dự án:
 
 ```powershell
 cd D:\ubnd-huong-do-tasks
-npm run dev
+npm run dev:pages
 ```
 
-Mở **http://127.0.0.1:5173/**. Chọn **Cán bộ Văn phòng** hoặc **Lãnh đạo**, rồi bấm **Vào giao diện DEMO**. Không cần tài khoản/mật khẩu thật. Hai ô tài khoản trên màn hình chỉ là minh họa.
+Mở **http://127.0.0.1:8788/**; API **http://127.0.0.1:8788/api/health**. Chọn **Cán bộ Văn phòng** hoặc **Lãnh đạo**, rồi bấm **Vào giao diện DEMO**. Không cần tài khoản/mật khẩu thật. Hai ô tài khoản trên màn hình chỉ là minh họa. `npm run dev` vẫn mở riêng Vite tại 5173 khi cần hot reload.
 
 Nếu mới tải dự án hoặc chưa có node_modules, chạy `npm ci` trước. Node.js hiện tại 22.14.0 đã chạy được bản này. Không cần .NET SDK hoặc SQL Server cho Chặng 1.
 
@@ -68,6 +68,6 @@ npm run test:ui
 | `src/domain.test.ts`, `tests/ui/` | Kiểm thử quy tắc và trình duyệt |
 | `package.json`, `package-lock.json`, `tsconfig.json`, `vite.config.ts`, `vitest.config.ts`, `playwright.config.ts`, `index.html`, `.gitignore` | Cấu hình, dependency khóa phiên bản và lệnh chạy |
 
-Các tài liệu gốc trong `docs/product` và `prompts` được giữ nguyên. Mã UI tự viết, chỉ tham khảo ý tưởng bố cục của `ntuan161297-eng/VanPhongSo`; chưa sao chép mã nguồn, push GitHub hoặc deploy.
+Các tài liệu nghiệp vụ gốc trong `docs/product` được giữ nguyên; yêu cầu Cloudflare mới nhất thay phần công nghệ trong kế hoạch cũ. Mã UI tự viết, chỉ tham khảo ý tưởng bố cục `ntuan161297-eng/VanPhongSo`. Không thay Vercel Production trong lượt tích hợp này.
 
-**Chưa bắt đầu Chặng 2. Cần chủ sản phẩm duyệt giao diện trước khi triển khai tiếp.**
+**Chưa bắt đầu Chặng B (D1 đa Tenant/Auth thật). Chờ chủ sản phẩm nghiệm thu Chặng A; không tự deploy hoặc chạy migration remote.**
