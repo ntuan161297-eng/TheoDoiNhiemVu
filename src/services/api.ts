@@ -25,7 +25,7 @@ function apiPath(path: string): string {
 }
 
 // Prepared but deliberately NOT connected to DemoProvider or login in Stage A.
-export async function apiRequest<T>(path: string, options: ApiOptions = {}): Promise<T> {
+async function requestJson(path: string, options: ApiOptions): Promise<{ response: Response; payload: unknown }> {
   const url = apiPath(path);
   const { json, accessToken, tenantId, headers: inputHeaders, ...requestOptions } = options;
   const headers = new Headers(inputHeaders);
@@ -38,15 +38,25 @@ export async function apiRequest<T>(path: string, options: ApiOptions = {}): Pro
     body: json === undefined ? undefined : JSON.stringify(json),
     credentials: 'same-origin', mode: 'same-origin', redirect: 'error', cache: 'no-store',
   });
-  if (response.status === 204 && response.ok) return undefined as T;
-  let payload: ApiResult<T>;
+  if (response.status === 204 && response.ok) return { response, payload: undefined };
+  let payload: unknown;
   try {
     if (!response.headers.get('Content-Type')?.toLowerCase().includes('application/json')) throw new Error('Unexpected response format');
-    payload = await response.json() as ApiResult<T>;
-    if (!payload || typeof payload.ok !== 'boolean' || typeof payload.requestId !== 'string'
-      || (payload.ok && !('data' in payload))
-      || (!payload.ok && (typeof payload.error?.code !== 'string' || typeof payload.error?.message !== 'string'))) throw new Error('Invalid envelope');
+    payload = await response.json();
   } catch {
+    throw new ApiError(response.status, 'INVALID_API_RESPONSE', 'Máy chủ chưa trả dữ liệu API hợp lệ.', response.headers.get('X-Request-Id') ?? undefined);
+  }
+  return { response, payload };
+}
+
+// Business endpoints will use this envelope after authorization is implemented.
+export async function apiRequest<T>(path: string, options: ApiOptions = {}): Promise<T> {
+  const { response, payload: body } = await requestJson(path, options);
+  if (response.status === 204 && response.ok) return undefined as T;
+  const payload = body as ApiResult<T> | null;
+  if (!payload || typeof payload.ok !== 'boolean' || typeof payload.requestId !== 'string'
+    || (payload.ok && !('data' in payload))
+    || (!payload.ok && (typeof payload.error?.code !== 'string' || typeof payload.error?.message !== 'string'))) {
     throw new ApiError(response.status, 'INVALID_API_RESPONSE', 'Máy chủ chưa trả dữ liệu API hợp lệ.', response.headers.get('X-Request-Id') ?? undefined);
   }
   if (!payload.ok) throw new ApiError(response.status, payload.error.code, payload.error.message, payload.requestId);
@@ -54,4 +64,12 @@ export async function apiRequest<T>(path: string, options: ApiOptions = {}): Pro
   return payload.data;
 }
 
-export const getHealth = (signal?: AbortSignal): Promise<HealthInfo> => apiRequest('/health', { signal });
+export async function getHealth(signal?: AbortSignal): Promise<HealthInfo> {
+  const { response, payload } = await requestJson('/health', { signal });
+  if (!response.ok) throw new ApiError(response.status, 'HTTP_ERROR', 'Không thể kiểm tra API.', response.headers.get('X-Request-Id') ?? undefined);
+  const health = payload as Partial<HealthInfo> | null;
+  if (health?.status !== 'ok' || health.service !== 'theo-doi-nhiem-vu-api') {
+    throw new ApiError(response.status, 'INVALID_API_RESPONSE', 'Phản hồi health không hợp lệ.');
+  }
+  return health as HealthInfo;
+}

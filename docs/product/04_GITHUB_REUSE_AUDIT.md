@@ -1,5 +1,7 @@
 # ĐỐI CHIẾU GITHUB VANPHONGSO — TÁI SỬ DỤNG CÓ KIỂM SOÁT
 
+> Đây là audit tham khảo đã thực hiện ở thời điểm ghi trong tài liệu, không phải kế hoạch backend hiện hành. Các bước xây backend công nghệ cũ ở phần khuyến nghị đã được [master Cloudflare](../cloudflare/MASTER_PROMPT.md) và [kế hoạch hiện hành](../IMPLEMENTATION_PLAN.md) thay thế. Tiếp tục giữ nguyên quy tắc không sửa repo nguồn và không sao chép mock/KPI/auth của tỉnh.
+
 **Repository được xem trực tiếp ngày 04/11/2026:** https://github.com/ntuan161297-eng/VanPhongSo (nhánh `main`). Đây là repo tham khảo, KHÔNG chỉnh sửa repo nguồn cho bài toán xã Hương Đô.
 
 ## 1. Công nghệ đã kiểm chứng

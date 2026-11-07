@@ -1,5 +1,7 @@
 # MASTER PRD — PHẦN MỀM THEO DÕI, ĐÔN ĐỐC NHIỆM VỤ UBND XÃ HƯƠNG ĐÔ
 
+> Tài liệu nghiệp vụ gốc V1.2, giữ để đối chiếu; V1.3 ưu tiên nghiệp vụ. Phần kiến trúc backend, vai trò quản trị đơn cơ quan và quy trình khởi tạo trong bản này đã được [master Cloudflare đa Tenant](../cloudflare/MASTER_PROMPT.md) thay thế. Dùng [kế hoạch hiện hành](../IMPLEMENTATION_PLAN.md), không triển khai công nghệ cũ từ PRD này.
+
 **Phiên bản:** 1.2 / Đầu mối nghiệp vụ: Văn phòng HĐND–UBND xã / Trạng thái: đặc tả để dựng MVP.  
 **Định nghĩa MVP:** làm được nghiệp vụ từ đầu đến cuối với dữ liệu bền vững, có tra cứu, có cảnh báo, có báo cáo đơn vị và phân quyền.
 

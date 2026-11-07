@@ -1,3 +1,5 @@
+> **B?o c?o l?ch s? Pages, ?? ???c thay th?.** Y?u c?u m?i ng?y 06/11/2026 d?ng Workers Static Assets + Worker API. Xem [b?o c?o Worker hi?n h?nh](CLOUDFLARE_WORKERS_STAGE_A.md) v? [h??ng d?n m?i](../cloudflare/README.md). K?t qu?/l?nh Pages b?n d??i ch? ghi l?i l??t tr??c, kh?ng d?ng ?? tri?n khai hi?n t?i.
+
 # Báo cáo Chặng A — Cloudflare Pages tích hợp vào dự án hiện có
 
 Hoàn tất kiểm tra local ngày 06/11/2026. **Chỉ Chặng A; chưa bắt đầu B.**

@@ -1,5 +1,7 @@
 # BƯỚC 2.2 — BÁO CÁO MIGRATION SUPABASE VÀ KIỂM THỬ TĨNH
 
+> Báo cáo lịch sử, không là lệnh tiếp tục apply Supabase. Database nghiệp vụ đích hiện là D1 theo [master Cloudflare](../cloudflare/MASTER_PROMPT.md); SQL cũ chưa chạy và không dùng trực tiếp ở D1. Theo [kế hoạch hiện hành](../IMPLEMENTATION_PLAN.md), Chặng B cần phê duyệt sau A.
+
 Ngày 05/11/2026. Kiến trúc đã được chủ sản phẩm duyệt; được phép tạo SQL và kiểm thử tĩnh. **Chưa được phép chạy migration trên Cloud, tạo Admin hoặc triển khai ứng dụng.**
 
 ## Bàn giao

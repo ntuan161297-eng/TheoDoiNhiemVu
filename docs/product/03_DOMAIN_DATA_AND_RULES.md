@@ -1,5 +1,7 @@
 # DỮ LIỆU, NGHIỆP VỤ, THỐNG KÊ VÀ PHÂN QUYỀN — CHUẨN MVP
 
+> Giữ nguyên các quy tắc nền để đối chiếu V1.3. Entity/user/API/Identity/ORM và ma trận ADMIN trong tài liệu gốc là mô hình đơn cơ quan cũ; [master Cloudflare](../cloudflare/MASTER_PROMPT.md) và [kế hoạch hiện hành](../IMPLEMENTATION_PLAN.md) thay phần triển khai bằng Worker API/D1/R2, membership/role theo Tenant, không mặc định Super Admin đọc dữ liệu Tenant.
+
 ## 1. Các entity tối thiểu
 | Bảng/Entity | Các thuộc tính quan trọng | Ghi chú |
 |---|---|---|

@@ -1,9 +1,11 @@
-Chỉ thực hiện sau khi kế hoạch của Prompt 00 được tôi duyệt. Đọc `docs/product/00_DOC_TRUOC.md`, `01_MASTER_PRD_MVP.md`, `02_UI_UX_BLUEPRINT.md`, `01_PRD_NGHIEP_VU_V13.md`, `02_UI_UX_V13.md` cùng seed CSV.
+# BẢO TOÀN UI MOCK HIỆN CÓ
 
-Hãy dựng FRONTEND mẫu cho ứng dụng UBND xã Hương Đô dùng React + TypeScript + Vite + Ant Design + Recharts. Tham khảo diện mạo `https://github.com/ntuan161297-eng/VanPhongSo`, nhưng KHÔNG ghi đè repo nguồn, không mang tên Hưng Yên, không bê số liệu mock hardcode, không làm dự án/giải ngân/ngân sách.
+Đọc master Cloudflare, kế hoạch và báo cáo `docs/qa/CLOUDFLARE_WORKERS_STAGE_A.md`; đây không phải lệnh khởi tạo frontend mới. UI đã có và phải được giữ lại. Chỉ sửa UI khi lượt yêu cầu cụ thể cho phép.
 
-Yêu cầu: (1) Dashboard KPI tính động từ mock; (2) Danh sách nhiệm vụ, lọc/sort/truy cập chi tiết; (3) biểu mẫu thêm/sửa, cập nhật tiến độ, xác nhận hoàn thành; (4) trang cần đôn đốc; (5) bảng tổng hợp 11 đơn vị. Có drawer chi tiết các tab Thông tin/Tiến độ/Đôn đốc/Gia hạn/Lịch sử. Có UI import Excel wizard (chưa nhập DB). Có UI ghi văn bản đôn đốc nhiều nhiệm vụ, UI xin gia hạn và chấp thuận/từ chối. Dùng dữ liệu giả 12–20 nhiệm vụ đủ mọi trạng thái, ghi rõ 'DỮ LIỆU MINH HỌA'. Không làm backend, không làm đăng nhập giả như thật.
+Giữ React/TypeScript/Vite/Ant Design/Recharts, theme/font/icon/nav/header navy; năm trang nghiệp vụ + login, bộ lọc, 6 KPI tính từ dữ liệu, bảng đủ 11 đơn vị Hương Đô, form/Drawer năm tab, import wizard ba bước, đôn đốc nhiều nhiệm vụ và gia hạn. Giữ giờ Việt Nam, ngày/tháng và accessibility/responsive. TreeView chưa có thì ghi đúng là chưa có; thuộc C, không bịa chức năng đã hoàn thành. Âm lịch nếu thêm phải đúng và có test.
 
-Tiêu chí: xanh navy/trắng, UX dễ đọc 1366px, responsive, hợp ngôn ngữ Việt, có loading/empty/error, hạn cảnh báo màu + chữ. Các nút lọc/KPI/drawer phải tương tác trên mock và không hardcode số KPI.
+DEMO phải có nhãn rõ, không giả đăng nhập/lưu DB thật. KPI không hardcode; trạng thái thực hiện/hạn/gia hạn tách biệt, pending không đổi hạn, snapshot khi hoàn thành, phối hợp không cộng trùng. Không copy dữ liệu Hưng Yên, không thêm phân hệ dự án/ngân sách.
 
-Sau khi xong: chạy `npm run build`, thông báo URL chạy local và cách tôi xem 5 màn hình; liệt kê phần đã làm, chưa làm, và chờ tôi duyệt trước giai đoạn sau.
+Khi đổi nền tảng, giữ component và thay adapter/service từng bước. Chưa B/D thì giữ DemoProvider/login đang chạy; không nối vào Auth hoặc endpoint chưa hoàn chỉnh. C hiện được phép mở rộng vùng quản trị theo master sau khi được duyệt, không bỏ yêu cầu đó chỉ vì giới hạn 5 trang nghiệp vụ cũ.
+
+Kiểm tra build và UI theo thay đổi được giao; ưu tiên test `npm run test:ui:worker` trên Worker local, giữ ảnh nghiệm thu cũ. Báo đúng file sửa, thao tác đã hoạt động, phần còn mô phỏng và chặng cần duyệt tiếp; không tự làm B–E.

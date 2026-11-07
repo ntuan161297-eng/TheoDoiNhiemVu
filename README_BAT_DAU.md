@@ -1,28 +1,29 @@
-# BẮT ĐẦU TẠO PHẦN MỀM TRONG ANTIGRAVITY
+# BẮT ĐẦU TỪ DỰ ÁN HIỆN CÓ — CLOUDFLARE WORKERS STATIC ASSETS
 
-## 1) Chuẩn bị
-Giải nén ZIP này vào thư mục **MỚI** `C:\Projects\ubnd-huong-do-tasks`. Không giải nén chồng vào repository `VanPhongSo` cũ.
+Mở workspace `D:\ubnd-huong-do-tasks`. Không giải nén tạo dự án mới, không ghi đè hoặc sửa repository tham khảo VanPhongSo.
 
-## 2) Mở Antigravity
-Mở Antigravity, chọn Open Folder (hoặc New Project → Add Folder → Create, tùy phiên bản). Chọn `C:\Projects\ubnd-huong-do-tasks`. Chỉ tin cậy workspace nếu đây là thư mục bạn chủ động tạo.
+1. Đọc [master Cloudflare đã hợp nhất](docs/cloudflare/MASTER_PROMPT.md).
+2. Đọc [kế hoạch hiện hành](docs/IMPLEMENTATION_PLAN.md) và [bảng đối chiếu yêu cầu/tiến độ](docs/cloudflare/REQUIREMENTS_TRACEABILITY.md).
+3. Nghiệp vụ theo [hướng dẫn ưu tiên](docs/product/00_DOC_TRUOC.md), PRD/UX/test V1.3 và CSV/Excel trong docs/product. Các công nghệ backend cũ trong PRD lịch sử đã được thay bằng Cloudflare.
+4. Chặng A đã kiểm tra local; mở http://127.0.0.1:8788/ và http://127.0.0.1:8788/api/health. Nếu chưa chạy server: `npm run dev:worker`. Xem [hướng dẫn chi tiết](docs/cloudflare/README.md).
+5. Phần mềm hiện vẫn login/nghiệp vụ DEMO; dữ liệu trong bộ nhớ, không phải D1/Auth/R2 thật. Không dùng cho văn bản nội bộ hoặc công việc chính thức.
 
-## 3) Giai đoạn 1 — Phân tích, chưa code
-Mở file `prompts/00_PHAN_TICH_TRUOC_KHI_CODE.md`, copy **toàn bộ nội dung**, dán vào ô Agent. Chọn Planning Mode nếu có; không cấp quyền tự động chạy mọi lệnh. Đọc bản kế hoạch và yêu cầu sửa đến khi đúng nghiệp vụ.
+## Dùng đúng prompt cho đúng chặng
 
-## 4) Giai đoạn 2 — UI demo
-Sau khi đồng ý kế hoạch, dán prompt `prompts/01_DUNG_GIAO_DIEN_MAU.md`. Cho Agent chạy ứng dụng local, kiểm tra Dashboard, lọc, drawer, form, import wizard, màn đôn đốc và gia hạn. **Chỉ là dữ liệu giả.**
+| Prompt | Phạm vi |
+|---|---|
+| `00_PHAN_TICH_TRUOC_KHI_CODE.md` | Phân tích tác động trên dự án hiện có |
+| `01_DUNG_GIAO_DIEN_MAU.md` | Bảo toàn và kiểm tra UI đang có |
+| `01A_CLOUDFLARE_WORKERS_HA_TANG.md` | A — Workers Static Assets/Worker API, health, chạy chung local |
+| `02_TAO_DATABASE_API_DANG_NHAP.md` | B — D1 multi-tenant, identity, membership/role |
+| `02C_QUAN_TRI_TENANT.md` | C — Tenant TreeView, cơ cấu, quản trị tài khoản |
+| `03_IMPORT_DON_DOC_GIA_HAN.md` | D — API nghiệp vụ thật, file, import/export |
+| `04_KIEM_THU_NGHIEM_THU.md` | E — QA, restore, Preview, Production có duyệt |
 
-## 5) Giai đoạn 3 — DB thật và API
-Dán `prompts/02_TAO_DATABASE_API_DANG_NHAP.md`. Kiểm tra Node, Git, .NET SDK, SQL Server/Express; để agent báo thiếu trước khi cài. Sau chặng này phải tạo/sửa nhiệm vụ, đăng nhập và xem báo cáo từ DB thật.
+Các prompt nằm trong `prompts/`, không phải lệnh tự động chạy tất cả. **Chỉ Chặng A đã được phép triển khai; B chờ nghiệm thu/phê duyệt A.**
 
-## 6) Giai đoạn 4 — Import Excel, đôn đốc, gia hạn
-Dán `prompts/03_IMPORT_DON_DOC_GIA_HAN.md`. Dùng mẫu Excel có trong `docs/product`. Test nhập trùng, lỗi dòng/cột, 1 văn bản đôn đốc nhiều nhiệm vụ và văn bản gia hạn có kết quả.
+Không cài phần mềm hệ thống, thay Windows, chạy migration remote, xóa dữ liệu, push hoặc deploy khi chưa có yêu cầu tương ứng. Không đổi Vercel Production. Mỗi lần tiếp tục cần kiểm tra Git/local trước và giữ các thay đổi chưa push.
 
-## 7) Giai đoạn 5 — Nghiệm thu
-Dán `prompts/04_KIEM_THU_NGHIEM_THU.md`. Kiểm thử và chỉ đưa dữ liệu thật vào khi đã thiết lập quyền, sao lưu, bảo mật file và tài khoản.
+Kiến trúc đích: React/Vite/Ant Design/Recharts → Worker API `/api` → D1/R2 private; Supabase chỉ được đánh giá cho Auth, không lưu mật khẩu thủ công. D1 không dùng PostgreSQL RLS/RPC/migration. Super Admin không có mặc định quyền đọc nhiệm vụ tenant.
 
-## CẦN NHỚ
-- Nguồn ưu tiên: V1.3 > V1.2 nếu khác nhau.
-- Thư mục `docs/product/reference` chỉ là thiết kế mẫu có dữ liệu demo.
-- Không tự đẩy mã nguồn, database, thông tin đăng nhập hoặc tài liệu hành chính lên GitHub public.
-- Mỗi chặng chỉ chuyển tiếp khi đã kiểm tra và chấp thuận chặng trước.
+Các hướng dẫn cũ đã lưu tại [snapshot](docs/archive/2026-11-06-before-master-sync/README.md); không dùng để quay lại quy trình .NET/SQL Server hoặc Supabase database.

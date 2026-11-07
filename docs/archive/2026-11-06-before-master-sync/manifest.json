@@ -1,0 +1,46 @@
+{
+  "sourceCommit": "2e17c3c",
+  "note": "Original hashes; archive Markdown links adjusted for relocated files.",
+  "files": [
+    {
+      "source": "docs/IMPLEMENTATION_PLAN.md",
+      "sourceSha256": "122a419a21c3da5ab429a60de4d186e4d6541a717db96017c291db9acc06eb11"
+    },
+    {
+      "source": "README_BAT_DAU.md",
+      "sourceSha256": "009ecfcca67b80e292ad47365d431f884873d1ec01fa4d30a7d98d463dde37ca"
+    },
+    {
+      "source": "README.md",
+      "sourceSha256": "69cebc78029921e99eaebe95c6f50c6666bc534d505cab7c38c4fb830ef6c365"
+    },
+    {
+      "source": "docs/product/00_DOC_TRUOC.md",
+      "sourceSha256": "ac3646bfd9669594f1a44bc339670e588fdf03d155f8ca5f8d2d364dee8ebff3"
+    },
+    {
+      "source": "docs/product/00_START_HERE.md",
+      "sourceSha256": "adf0e96d771d8c36ccd6e14365463fcc74ab29b2159d09d522bdec80227b21c3"
+    },
+    {
+      "source": "prompts/00_PHAN_TICH_TRUOC_KHI_CODE.md",
+      "sourceSha256": "725ca39e9dac01ec2f7183851d3edd150986515db3843e6dd326d9f66fa454aa"
+    },
+    {
+      "source": "prompts/01_DUNG_GIAO_DIEN_MAU.md",
+      "sourceSha256": "c8f9122e83647ce6a95675d5acf27359676443646214963a24a14c6128b44ec5"
+    },
+    {
+      "source": "prompts/02_TAO_DATABASE_API_DANG_NHAP.md",
+      "sourceSha256": "283e8f9d6daa69d6746062156bc3a4268be6e1280c73a9e90dd57d3c2bf6d88e"
+    },
+    {
+      "source": "prompts/03_IMPORT_DON_DOC_GIA_HAN.md",
+      "sourceSha256": "0a995d83d3d205d787e3b1947a4af33bb8a7c8db393c82e27d9a422a06d8f9dc"
+    },
+    {
+      "source": "prompts/04_KIEM_THU_NGHIEM_THU.md",
+      "sourceSha256": "eb0174a5210c3717cb0fe1fc780910679d6733d835fa77f089fa5087115b33a0"
+    }
+  ]
+}

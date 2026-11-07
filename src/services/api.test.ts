@@ -7,10 +7,11 @@ const response = (body: unknown, status = 200) => new Response(JSON.stringify(bo
 });
 
 describe('API service contract', () => {
-  it('uses same-origin /api and unwraps JSON without reading a DEMO role', async () => {
-    const fetcher = vi.fn().mockResolvedValue(response({ ok: true, data: { stage: 'A' }, requestId: 'test-request' }));
+  it('uses same-origin /api and reads the minimal health contract without a DEMO role', async () => {
+    const health = { status: 'ok', service: 'theo-doi-nhiem-vu-api' };
+    const fetcher = vi.fn().mockResolvedValue(response(health));
     vi.stubGlobal('fetch', fetcher);
-    expect(await getHealth()).toEqual({ stage: 'A' });
+    expect(await getHealth()).toEqual(health);
     const [url, init] = fetcher.mock.calls[0];
     expect(url).toBe('/api/health');
     expect(init).toMatchObject({ credentials: 'same-origin', mode: 'same-origin', redirect: 'error', cache: 'no-store' });
@@ -27,6 +28,13 @@ describe('API service contract', () => {
     expect(init.headers.get('Authorization')).toBe('Bearer fixture-token');
     expect(init.headers.get('X-Tenant-Id')).toBe('fixture-tenant');
     expect(JSON.parse(init.body)).toEqual({ title: 'Test' });
+  });
+
+  it('rejects failed or malformed health responses', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ status: 'ok', service: 'other' })));
+    await expect(getHealth()).rejects.toMatchObject({ code: 'INVALID_API_RESPONSE' });
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response({ status: 'ok', service: 'theo-doi-nhiem-vu-api' }, 503)));
+    await expect(getHealth()).rejects.toMatchObject({ status: 503, code: 'HTTP_ERROR' });
   });
 
   it('retains permission error code/status/request ID instead of falling back to mock data', async () => {

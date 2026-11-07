@@ -1,126 +1,146 @@
-# KẾ HOẠCH TRIỂN KHAI — THEO DÕI VÀ ĐÔN ĐỐC NHIỆM VỤ UBND XÃ HƯƠNG ĐÔ
+# KẾ HOẠCH HIỆN HÀNH — CLOUDFLARE WORKERS STATIC ASSETS FULL-STACK, MULTI-TENANT
 
-> **Cập nhật hiện hành 06/11/2026:** Chủ sản phẩm yêu cầu tích hợp **Cloudflare Pages + Pages Functions**, database đích **D1**, file **R2 private**, mở rộng đa Tenant; Supabase chỉ được cân nhắc làm Auth. **Chặng A đã tích hợp/kiểm tra local, chờ nghiệm thu; chưa bắt đầu B.** [Hướng dẫn chạy và triển khai](cloudflare/README.md), [báo cáo A](qa/CLOUDFLARE_STAGE_A.md). Các phần Supabase và chặng 1–4 bên dưới là kế hoạch lịch sử trước quyết định mới, không cấp quyền chạy migration/deploy. Lộ trình mới: A hạ tầng → B D1/Auth/tenant isolation → C quản trị → D nghiệp vụ → E QA/Preview/Production có duyệt. Giữ toàn bộ quy tắc nghiệp vụ V1.3.
+Cập nhật 06/11/2026 theo [master prompt đã hợp nhất](cloudflare/MASTER_PROMPT.md). Đây là kế hoạch thay thế toàn bộ phương án backend cũ; không chỉ là chú thích bổ sung lên kế hoạch Supabase.
 
-Trạng thái cập nhật 05/11/2026: Chặng 1 UI mock đã hoàn thành và được chủ sản phẩm nghiệm thu. Chủ sản phẩm đã duyệt kiến trúc **Supabase**, thay ASP.NET Core/EF Core/SQL Server, và cho phép **Bước 2.2 tạo file migration/seed/SQL tests, kiểm thử tĩnh**. Bộ SQL đã tạo trong `supabase/`; **chưa chạy SQL, link Cloud, tạo Admin hoặc nối Auth/CRUD/Dashboard vào frontend**. Chờ phê duyệt chạy migration; Chặng 3–4 tiếp tục cần duyệt riêng.
+**Trạng thái thực tế:** Chặng A đã chuyển sang Workers Static Assets + Worker API theo yêu cầu mới ngày 06/11/2026 và kiểm tra local, chờ chủ sản phẩm nghiệm thu trước Preview. Chặng B–E chưa triển khai. Việc đồng bộ tài liệu không phải phê duyệt triển khai B, tạo database/tài khoản, push, migration remote hoặc deploy.
 
-Thiết kế đã duyệt: [STAGE2_SUPABASE_ARCHITECTURE.md](analysis/STAGE2_SUPABASE_ARCHITECTURE.md). Bàn giao Bước 2.2: [báo cáo migration](qa/STAGE2_MIGRATION_REVIEW.md), [hướng dẫn áp dụng](../supabase/README.md). Báo cáo môi trường .NET/SQL cũ chỉ còn giá trị lịch sử, không là điều kiện chặn hướng Supabase.
+Đọc [bảng đối chiếu yêu cầu và tiến độ](cloudflare/REQUIREMENTS_TRACEABILITY.md), [hướng dẫn chạy/triển khai](cloudflare/README.md), [báo cáo Chặng A](qa/CLOUDFLARE_WORKERS_STAGE_A.md). Kế hoạch/prompt cũ được lưu tại [snapshot trước đồng bộ](archive/2026-11-06-before-master-sync/README.md).
 
-## 1. Nguồn và thứ tự ưu tiên
+## 1. Phạm vi và nguồn ưu tiên
 
-Đã đọc toàn bộ docs/product: 00_DOC_TRUOC, 00_START_HERE, PRD/UX V1.2 và V1.3, business rules, kiểm thử V1.2/V1.3, audit GitHub, ba CSV, workbook Excel và các reference. Khi khác nhau: V1.3 ưu tiên hơn V1.2. Yêu cầu trực tiếp của chủ sản phẩm xác định lãnh đạo mặc định chỉ xem, Văn phòng nhập và xác nhận.
+- Tích hợp vào `D:\ubnd-huong-do-tasks`, repository `ntuan161297-eng/TheoDoiNhiemVu`; không tạo frontend/repository mới, không ghi đè local chưa push.
+- Hương Đô là tenant triển khai đầu tiên. Sản phẩm đích hỗ trợ nhiều xã/phường/cơ quan; không giới hạn toàn nền tảng vào 11 đơn vị của một xã.
+- Yêu cầu trực tiếp mới nhất của chủ sản phẩm và master Cloudflare quyết định kiến trúc, multi-tenant, vai trò, thứ tự A–E. PRD/UX/test V1.3 ưu tiên V1.2 về nghiệp vụ; CSV/Excel là nguồn danh mục và cấu trúc import.
+- Không sửa repo tham khảo `VanPhongSo`, không mang dữ liệu/KPI/auth demo Hưng Yên hoặc phân hệ dự án/giải ngân/ngân sách sang.
+- Không thay Vercel Production. Không cài phần mềm hệ thống, xóa dữ liệu, chạy SQL remote, deploy Production hoặc push khi chưa có phạm vi cho phép tương ứng. Không đưa văn bản thật/dữ liệu nội bộ lên môi trường demo Cloud.
 
-Repository ntuan161297-eng/VanPhongSo chỉ dùng nghiên cứu. Tự viết mã React/Ant Design theo ý tưởng bố cục; không sao chép mã khi chưa xác định quyền sử dụng, không sửa repo nguồn, không mang mock/KPI/auth demo Hưng Yên sang.
+## 2. Kiến trúc hiện hành và mức hoàn thành
 
-## 2. Phạm vi MVP — năm trang và đăng nhập
+| Thành phần | Công nghệ đích | Hiện tại |
+|---|---|---|
+| Frontend | React + TypeScript + Vite + Ant Design + Recharts; Design System sẵn có | UI hiện có được giữ nguyên |
+| Hosting | Cloudflare Workers Static Assets, SPA routing | Cấu hình và local đã có; chưa deploy Cloud |
+| API | Cloudflare Worker API, `worker/index.ts`, TypeScript tương thích Workers Runtime | Health JSON đã có; chưa Auth/middleware quyền hoặc API nghiệp vụ |
+| Client | `src/services/api.ts`, gọi cùng origin `/api` | Đã tạo; chưa thay DemoProvider |
+| Database | Cloudflare D1, SQL tương thích SQLite, migration có version | Chưa schema/migration D1 hoặc binding thật |
+| File | R2 private; metadata/tenant scope trong D1; tải qua API có quyền | Chỉ contract/mẫu binding, chưa bucket/upload/download thật |
+| Danh tính | Ưu tiên đánh giá Supabase Auth nếu an toàn và ít phát sinh | Chưa SDK/session/JWT thật; không tự lưu mật khẩu |
+| Phân quyền | Worker API + membership/role/tenant + composite FK trong D1 | Chưa triển khai; middleware A chỉ mở health |
 
-1. Tổng quan và cảnh báo: sáu KPI, danh sách ưu tiên, thống kê 11 đơn vị, một biểu đồ.
-2. Nhiệm vụ: tìm/lọc, thêm/sửa, tiến độ, hoàn thành, import/export; drawer chi tiết năm tab.
-3. Cần đôn đốc: quá hạn → khẩn → nguy cơ; một văn bản liên kết nhiều nhiệm vụ.
-4. Báo cáo theo đơn vị: 11 dòng kể cả số 0, drill-down, xuất tổng hợp/chi tiết theo bộ lọc.
-5. Danh mục/cấu hình: 11 đơn vị, ba lãnh đạo, ba nguồn; tài khoản/quyền ở giai đoạn backend.
-
-Không làm tài khoản phòng chuyên môn, giao nhận điện tử, workflow đa cấp, chữ ký số, SSO, văn thư tích hợp, AI, email/SMS/Zalo, app native, đầu việc con, dự án/giải ngân/ngân sách/bản đồ.
-
-## 3. Vai trò và quy trình
-
-| Hành động | Văn phòng nhập liệu | Văn phòng xác nhận | Lãnh đạo xem | Quản trị |
-|---|---|---|---|---|
-| Xem/lọc/xuất | Có | Có | Có | Có |
-| Nhập/sửa/tiến độ/đôn đốc/đề nghị gia hạn | Có | Có | Không | Có (đề xuất Supabase) |
-| Ghi kết quả gia hạn, xác nhận hoàn thành | Không | Có | Không | Có (đề xuất Supabase) |
-| Tài khoản/danh mục/cấu hình | Không | Không | Không | Có |
-| Xóa audit | Không | Không | Không | Không |
-
-Tiếp nhận căn cứ → nhập tay hoặc import → cập nhật tiến độ → hệ thống tính hạn → ghi văn bản đôn đốc/đề nghị gia hạn → ghi kết quả có căn cứ → xác nhận hoàn thành → báo cáo. Đơn vị trao đổi ngoài hệ thống. Ghi nhận chấp thuận không trao thẩm quyền hành chính cho Văn phòng.
-
-## 4. Sitemap và UX
-
-Header navy #153B60, menu ngang, nền #F3F7FB, card trắng, tương tác xanh #1677FF. Desktop từ 1280px sáu KPI/hàng khi đủ chỗ, tablet ba KPI/hàng, mobile hai KPI/hàng. Bảng cuộn ngang trong vùng riêng; form/drawer toàn màn hình trên điện thoại. Body khoảng 14px, trạng thái có chữ và màu, keyboard/focus, loading/empty/error/retry rõ ràng.
-
-Menu: Tổng quan | Nhiệm vụ | Cần đôn đốc | Báo cáo đơn vị | Danh mục. Đăng nhập riêng. Thêm/sửa/import là luồng trong trang, không tăng số trang nghiệp vụ.
-
-Form nhiệm vụ: nguồn/căn cứ; nội dung/ngày giao/chủ trì/lãnh đạo bắt buộc; phối hợp tùy chọn không trùng chủ trì; hạn gốc bắt buộc; ưu tiên, lĩnh vực/người theo dõi/ghi chú tùy chọn. Mã tự sinh. Hạn gốc không ghi đè sau lưu. % tiến độ tùy chọn, không tự xác nhận khi 100%.
-
-Drawer: Thông tin | Tiến độ | Đôn đốc | Gia hạn | Lịch sử. Timeline có người/thời điểm/trước-sau/tài liệu. Lưu bộ lọc khi drill-down và quay lại.
-
-Import ba bước: chọn .xlsx → xem trước và lỗi dòng/cột/nghi trùng → xác nhận/kết quả. Workbook gồm HUONG_DAN, NHAP_NHIEM_VU, VI_DU, DANH_MUC; chỉ nhập NHAP_NHIEM_VU, header dòng 5, dữ liệu từ 6, 19 cột A–S. Vùng mẫu đến dòng 205 chưa phải giới hạn sản phẩm. Sheet nhập hiện trống; không tự nhập ba dòng VI_DU. Phối hợp tách bằng |. Chuẩn hóa Unicode/khoảng trắng/hoa-thường (Công an trong CSV và Excel cùng DV06), không fuzzy-match hoặc tự tạo danh mục.
-
-Trùng: ưu tiên mã đối chiếu duy nhất; nếu thiếu dùng nguồn + số/ngày văn bản + nội dung + chủ trì để cảnh báo. Mặc định bỏ qua; cập nhật chỉ khi định danh chắc chắn; không sửa hạn gốc/lịch sử. Có lỗi chặn thì chưa ghi; xác nhận xong backend kiểm tra lại và transaction. Dòng hoàn thành phải đủ dữ liệu và quyền xác nhận. Excel không tạo file, đôn đốc hoặc gia hạn.
-
-Đôn đốc: 1..N nhiệm vụ, số/ngày văn bản, cơ quan/người ký, nội dung, hạn phản hồi tùy chọn, file và ghi chú. Một hồ sơ dùng chung; mở/sửa/tải lại file không tăng lượt. Nhắc nội bộ nếu có là chỉ tiêu riêng, mặc định chưa bật.
-
-Gia hạn: hiển thị hạn gốc/hạn hiện tại/hạn đề nghị/số ngày xin thêm; số/ngày/đơn vị/lý do/hạn đề xuất/file; pending giữ hạn. Kết quả cần số/ngày văn bản và file; approved nhập hạn được duyệt có thể khác hạn xin. Chỉ một yêu cầu đang chờ trên mỗi nhiệm vụ.
-
-## 5. Kiến trúc và ERD
-
-Frontend giữ React + TypeScript + Vite + Ant Design + Recharts, toàn bộ UI hiện có. Backend đích: Supabase PostgreSQL + Auth + Storage private + RLS; đọc qua Data API có grants/RLS, ghi liên bảng bằng PostgreSQL RPC transaction và audit. Edge Functions chỉ dùng khi cần xử lý phía server, không thay transaction DB. Không cài .NET/SQL Server, không tạo frontend mới.
-
-ERD dưới đây thể hiện quan hệ nghiệp vụ tổng quát. ERD PostgreSQL chi tiết, `auth.users`/`profiles`/`user_roles`, bảng idempotency, khóa/index, Storage và ma trận RLS nằm tại [thiết kế Supabase](analysis/STAGE2_SUPABASE_ARCHITECTURE.md). Mọi thông tin người dùng/quyền được kiểm tra tại DB; frontend chỉ dùng publishable key, không chứa secret/service_role. Chỉ seed danh mục chính thức 11/3/3; không tự đưa nhiệm vụ DEMO hay dữ liệu nội bộ lên Cloud.
+Không dùng Supabase PostgreSQL/Storage/RLS làm backend đích. Không dùng migration PostgreSQL trực tiếp cho D1. Supabase chỉ là lựa chọn dịch vụ danh tính ở B; không mặc định dùng service_role để bỏ qua kiểm tra quyền.
 
 ```mermaid
-erDiagram
-  TaskSources ||--o{ Tasks : source
-  Leaders ||--o{ Tasks : directs
-  Units ||--o{ Tasks : leads
-  SourceDocuments o|--o{ Tasks : basis
-  Tasks ||--o{ TaskCoordinatingUnits : coordinates
-  Units ||--o{ TaskCoordinatingUnits : participates
-  Tasks ||--o{ TaskProgressUpdates : progress
-  ExpediteDocuments ||--|{ ExpediteDocumentTasks : covers
-  Tasks ||--o{ ExpediteDocumentTasks : receives
-  Tasks ||--o{ ExtensionRequests : requests
-  Units ||--o{ ExtensionRequests : proposes
-  SourceDocuments ||--o{ Attachments : files
-  ExpediteDocuments ||--o{ Attachments : files
-  ExtensionRequests ||--o{ Attachments : proposal_response
-  TaskProgressUpdates ||--o{ Attachments : evidence
-  Tasks ||--o{ Attachments : result
-  Users ||--o{ AuditLogs : performs
-  Users ||--o{ ImportJobs : imports
-  ImportJobs ||--o{ ImportJobRows : contains
-  Tasks o|--o{ ImportJobRows : resolved
+flowchart LR
+  UI[React hiện có] --> Client[src/services/api.ts]
+  Client --> API[Worker API /api]
+  API --> Auth[Dịch vụ danh tính - đánh giá Supabase Auth ở B]
+  API --> Guard[JWT + membership + tenant + role + record scope]
+  Guard --> D1[(D1 nghiệp vụ)]
+  Guard --> R2[R2 private]
+  Guard --> Audit[Audit trong phạm vi tenant / nền tảng]
 ```
 
-Tasks: UUID/code/externalRef, source/primaryUnit/leader/document, content/assignedDate/originalDueDate, executionStatus, owner/priority, completedDate/confirmedAt/confirmedBy/completionSummary/dueDateAtCompletion, rowVersion. Danh mục có ID ổn định và active. Các bảng phối hợp và liên kết đôn đốc có khóa cặp duy nhất.
+Sơ đồ là kiến trúc đích. Hiện chỉ health chạy qua API; các khối Auth/D1/R2/tenant guard chưa được nối.
 
-SourceDocuments lưu số/ngày/cơ quan/trích yếu hoặc mô tả cuộc họp. ExpediteDocuments lưu văn bản, yêu cầu, hạn phản hồi, tình trạng hủy/lý do. ExtensionRequests lưu thứ tự, hạn trước khi xin, văn bản đề nghị, hạn xin, kết quả, văn bản phản hồi và hạn được duyệt. Attachments có metadata/hash/storageKey và đúng một chủ thể, phân biệt file đề nghị/phản hồi. AuditLogs append-only lưu trước/sau/người/thời điểm/lý do. ImportJobs/Rows lưu tên/hash tệp, lỗi, lựa chọn trùng và kết quả từng dòng.
+## 3. Thiết kế đa Tenant phải hoàn thiện ở B
 
-Date dùng ngày nghiệp vụ; timestamp audit UTC, hiển thị giờ Việt Nam. Hạn hiệu lực dẫn xuất; nếu cache trong Tasks phải cập nhật cùng transaction. Một yêu cầu pending/task được ràng buộc DB. Optimistic concurrency, chống gửi lặp, kiểm tra quyền API, thống kê dùng chung service.
+Mỗi cơ quan có tenant riêng và cơ cấu/đơn vị/lãnh đạo/nguồn/tài khoản/nhiệm vụ/văn bản/báo cáo/file riêng. Một identity có thể thuộc nhiều tenant; người dùng phải chuyển ngữ cảnh rõ ràng. Thay tenant phải tải lại quyền, xóa cache/selection không còn phù hợp, không trộn dữ liệu hai cơ quan.
 
-## 6. Quy tắc hạn và KPI
+### Danh sách bảng đích và quan hệ
 
-Ngày lịch Asia/Ho_Chi_Minh. daysLeft = hạn hiệu lực − hôm nay. Chưa hoàn thành: >=6 Còn hạn; 3..5 Nguy cơ; 0..2 Khẩn; <0 Quá hạn. Đến hạn vẫn đúng hạn cả ngày. Không có hạn là dữ liệu không hợp lệ.
+| Bảng | Vai trò / phạm vi |
+|---|---|
+| `tenants` | Cơ quan, mã, tên, trạng thái, cấu hình riêng |
+| `organization_units` | Cơ cấu dạng cây, mã đơn vị, parent cùng tenant, active; chống chu trình |
+| `profiles` | Hồ sơ identity dùng chung; định danh từ provider/issuer/subject, không password |
+| `tenant_memberships` | Membership của profile trong tenant, active/locked; unique cặp tenant/user |
+| `tenant_member_roles` | Các role được cấp cho membership, audit người cấp/thu hồi |
+| `user_unit_assignments` | Liên kết membership với đơn vị thuộc chính tenant đó |
+| `leaders`, `task_sources` | Lãnh đạo/nguồn theo tenant, mã ổn định |
+| `source_documents` | Văn bản căn cứ hoặc mô tả cuộc họp; một hồ sơ có nhiều nhiệm vụ |
+| `tasks` | Một nguồn, một chủ trì, một lãnh đạo, hạn gốc/hạn hiệu lực, tiến độ/kết quả/snapshot/version |
+| `task_coordinating_units` | Nhiều đơn vị phối hợp, không trùng chủ trì; không nhân bản task |
+| `task_progress_updates` | Cập nhật tiến độ và minh chứng |
+| `expedite_documents` | Văn bản đôn đốc, trạng thái hủy/đính chính có lịch sử |
+| `expedite_document_tasks` | Một văn bản liên kết nhiều nhiệm vụ, duy nhất cặp văn bản/task |
+| `extension_requests` | Hồ sơ đề nghị + phản hồi + kết quả/hạn duyệt, nhiều lần tuần tự |
+| `attachments` | Metadata, owner/document, tenant, object key R2, trạng thái upload/kiểm tra |
+| `audit_logs` | Actor, tenant/scope, hành động, trước/sau, lý do, thời điểm; không xóa trái phép |
+| `import_jobs`, `import_job_rows` | File/preview/errors/lựa chọn trùng và kết quả từng dòng trong đúng tenant |
 
-Thực hiện: CHUA_THUC_HIEN/DANG_THUC_HIEN/DA_HOAN_THANH. Hạn và gia hạn là các trục độc lập. Gia hạn: KHONG_XIN/DANG_XIN/DA_DUOC_GIA_HAN/KHONG_DUOC_CHAP_THUAN. Lần tiếp theo pending/rejected giữ hạn đã duyệt trước đó. Không dùng max(hạn đề nghị) hoặc ngày nhập mới nhất để suy quyết định.
+Bổ sung cơ chế role nền tảng/Bootstrap Super Admin và idempotency theo thiết kế B; không dùng role tenant để suy ra quyền Super Admin. `profiles` là identity dùng chung, còn dữ liệu/quyền của cơ quan thuộc membership/tenant; quyết định schema chi tiết phải được review trước khi tạo D1 migration.
 
-Hạn hiệu lực = hạn gốc nếu chưa duyệt; nếu có dùng hạn được duyệt ở lần áp dụng hợp lệ gần nhất. Đề xuất mới phải sau hạn hiện tại; giảm hạn là nghiệp vụ khác. OriginalDueDate bất biến. Xác nhận hoàn thành cần ngày thực tế <= hôm nay, kết quả, người xác nhận; chụp dueDateAtCompletion. Thực tế <= snapshot: đúng hạn, >: chậm. Sau hoàn thành bỏ cảnh báo quá hạn hiện hành; không hồi tố snapshot bằng sửa hạn.
+Mọi bảng nghiệp vụ tenant-scoped có `tenant_id`; dùng unique/index theo tenant, composite FK như `(tenant_id, source_document_id) -> source_documents(tenant_id,id)` và tương tự cho task/đơn vị/văn bản/attachment/membership. Không chỉ lọc tenant ở UI hoặc chỉ kiểm tra một FK `id`. Đơn vị cha cũng phải cùng tenant. Profile toàn cục không được chứa task/file hoặc quyền nội bộ của một tenant.
 
-T = DISTINCT Task ID trong bộ lọc. Tổng = Hoàn thành + Chưa hoàn thành. Chưa hoàn thành = Còn hạn + Nguy cơ + Khẩn + Quá hạn. Hoàn thành = Đúng hạn + Chậm hạn. Pending gia hạn và đã đôn đốc là các tập có thể giao, không cộng vào tổng. Nhiệm vụ đã đôn đốc đếm Task ID có văn bản hợp lệ; tổng lượt đếm liên kết. Một văn bản bốn nhiệm vụ = một văn bản/bốn lượt/mỗi nhiệm vụ một lần.
+Ví dụ chống truy cập chéo bắt buộc kiểm thử ở B: người A gửi tenant B, đổi task ID/document ID/file ID sang B, gắn đơn vị B vào nhiệm vụ A, báo cáo/export/import xuyên tenant, đổi tenant nhưng dùng cache/token/quyền cũ. Không được chỉ test các trường hợp hợp lệ.
 
-Thống kê theo đơn vị chủ trì, đủ 11 đơn vị kể cả 0; phối hợp chỉ lọc tra cứu. Năm/tháng mặc định theo ngày giao. Khác trường AND, cùng trường nhiều giá trị OR. Drill-down giữ bộ lọc. Dashboard/danh sách/export cùng tập dữ liệu và asOf.
+Seed Hương Đô: đúng 11 đơn vị, 3 lãnh đạo và 3 nguồn từ CSV, scoped tenant Hương Đô. Giữ mã/tên chính thức, normalize hoa-thường/Unicode khi đối chiếu; không tự tạo đơn vị thứ 12. Cơ quan khác có cơ cấu riêng, không tự sao chép 11 đơn vị Hương Đô cho tất cả tenant. Không tự tạo tài khoản cho các đơn vị từ CSV, nhiệm vụ giả hoặc tenant A/B thật trên Cloud.
 
-## 7. Tham khảo GitHub
+## 4. Danh tính, ma trận quyền và quản trị
 
-AppHeader/AppLayout: cấu trúc header/menu; KPICard: thẻ có keyboard; FilterBar: flex/filter nâng cao; StatusBadge: Tag; TaskListPage/TaskDetailDrawer: Table/Descriptions/Drawer/Timeline; TaskOverviewMode: bố cục KPI/bảng/Recharts. Tự viết phiên bản Hương Đô. dataService.ts và TaskOverviewMode có số hardcode/mock; expediteTask sửa mảng runtime; AppContext dùng auth demo. Không tái sử dụng logic này. Viết mới DTO/thuật toán/API/auth/persistence/import/đôn đốc/gia hạn/file/audit/export.
+Mỗi API đọc/ghi/thống kê/export/tải file phải thực hiện: (1) xác minh danh tính/token hợp lệ; (2) membership còn hiệu lực; (3) tenant được cấp quyền; (4) role có capability cần thiết; (5) bản ghi và mọi liên kết thuộc tenant; (6) ghi audit khi thay đổi dữ liệu/đặc quyền. Tenant header chỉ là yêu cầu chọn ngữ cảnh, không phải bằng chứng cấp quyền.
 
-## 8. Bốn chặng và nghiệm thu
+Không tin role DEMO, `user_metadata`, tenant_id từ body hoặc việc ẩn nút ở frontend. D1 không có PostgreSQL RLS; Worker API phải thực thi quyền, D1 composite FK/constraints bổ sung bảo vệ tính nhất quán. Không viết hệ thống hash/mật khẩu/reset token thủ công.
 
-| Chặng | Bàn giao | Điều kiện |
+| Vai trò | Quyền theo master | Ranh giới |
 |---|---|---|
-| 1 UI mock (đã hoàn thành) | 5 trang + login, form/drawer/import 3 bước/đôn đốc/gia hạn; nhiệm vụ DEMO trong bộ nhớ | KPI tính động, drill-down đúng, đủ 11 đơn vị, responsive desktop/tablet/mobile, build và browser QA đã có minh chứng |
-| 2 Supabase DB/Auth/RLS (2.2 đã tạo SQL, chờ duyệt apply) | PostgreSQL migration có version/seed 11-3-3/RLS/RPC/schema Storage; các bước Auth/service React/CRUD/dashboard sau apply cần triển khai tiếp theo phạm vi duyệt | Tĩnh đã kiểm tra; runtime DB quyền/concurrency/persistence/snapshot/báo cáo chưa chạy; không seed demo |
-| 3 Import/Đôn đốc/Gia hạn (chưa được phép) | Import thật/preview/log/transaction, văn bản chung, kết quả gia hạn | TC08–15/19–22/29 V1.3; không nhân bản; pending/rejected giữ hạn; approved nguyên tử |
-| 4 QA (chưa được phép) | Test tự động/UI/hướng dẫn/backup-restore | TC01–30 V1.3 và test nền V1.2 phù hợp; build/test đạt; phục hồi DB và file; không mock |
+| Super Admin | Tạo/quản lý tenant; tạo Tenant Admin; theo dõi trạng thái tenant; cấu hình nền tảng | Không mặc định đọc nhiệm vụ/văn bản/file nội bộ tenant |
+| Tenant Admin | TreeView/cơ cấu; thêm/sửa/ngừng đơn vị; tạo tài khoản/invite; cấp/thu hồi role; khóa quyền tenant; yêu cầu reset; audit quản trị được phép | Chỉ trong tenant được cấp; không quản trị tenant khác hoặc tự thành Super Admin |
+| Office Editor | Thêm/sửa task; cập nhật tiến độ; ghi đôn đốc và đề nghị gia hạn | Không tự suy ra quyền xác nhận hoặc duyệt hạn |
+| Office Confirmer | Xác nhận hoàn thành; ghi quyết định gia hạn có căn cứ thẩm quyền | Lưu actor và snapshot; không phải cơ quan tự ban hành quyết định hành chính |
+| Leader Viewer | Xem dashboard/task/báo cáo/tài liệu được phép | Không sửa dữ liệu |
 
-Chỉ chuyển chặng sau khi kiểm tra và PO chấp thuận. Bước 2.2 chỉ tạo SQL và kiểm thử tĩnh, cài parser PostgreSQL dev dependency trong project; chưa chạy migration/nối Supabase. Không tự deploy hoặc push các thay đổi này. Lần push mã trước đó được chủ sản phẩm yêu cầu riêng, không phải quyền tự push ở các lượt sau.
+Một người có thể có nhiều role theo từng tenant. Việc kế thừa capability giữa Tenant Admin/Editor/Confirmer phải chốt minh bạch ở B; không mang ma trận ADMIN đơn cơ quan của Supabase cũ sang rồi mặc định mở mọi dữ liệu. Phân công đơn vị không tự tạo quyền ghi.
 
-## 9. Quyết định còn cần chốt trước các chặng sau
+Nếu chọn Supabase Auth: frontend dùng SDK danh tính, backend xác minh token/issuer/audience/expiry và cơ chế khóa/thu hồi phù hợp; quyền tenant đọc từ D1. Tạo user/invite/reset qua API quản trị identity phía server và kiểm tra role trước; secret chỉ ở server, không vào `VITE_*`, browser, logs hoặc Git. Bootstrap Super Admin riêng, có xác minh người vận hành và audit; không tự cấp cho user đăng ký đầu tiên.
 
-Các quyết định còn mở hiện hành được tập trung tại mục 10 của [thiết kế Supabase](analysis/STAGE2_SUPABASE_ARCHITECTURE.md): project thử nghiệm/người phụ trách; ma trận quyền chi tiết; giới hạn file; workflow migration và môi trường DB tests; trước GĐ3 chốt đính chính gia hạn và quy mô import. Không còn yêu cầu chọn/cài máy chủ .NET/SQL để tiếp tục.
+## 5. UI, tài liệu và file phải bảo toàn
 
-## 10. Môi trường đã kiểm tra
+Giữ Design System/nav/header navy, login, Dashboard, 6 KPI, bảng/filter, form, Drawer 5 tab, import wizard và lịch/giờ Việt Nam. Không tạo frontend mới. Giữ `src/App.tsx`, `store.tsx`, `demo.ts`, `domain.ts`, `pages.tsx`, Login/TaskForms/TaskDrawer/ImportWizard/BusinessClock; thay lớp dữ liệu từng bước, không viết lại component khi chưa cần.
 
-Node v22.14.0, Git 2.56.0.windows.1; .NET runtime có nhưng SDK chưa có; chưa phát hiện instance/dịch vụ SQL Server cục bộ, sqlcmd/sqllocaldb chưa có trong PATH. Chưa kiểm tra SQL Server từ xa. Không tự cài môi trường backend.
+Năm trang nghiệp vụ + login tiếp tục là giao diện công việc. Master bổ sung vùng quản trị hệ thống/tenant, Tenant TreeView và cơ cấu ở C; không dùng giới hạn 5 trang cũ để bỏ các yêu cầu quản trị mới. TreeView chưa có trong bản A; không báo đã bảo toàn một chức năng chưa tồn tại. Giữ ngày/tháng/giờ Asia/Ho_Chi_Minh; âm lịch chỉ thêm khi có cách tính/kiểm thử chính xác, không hiển thị số giả.
 
-Kiểm tra Supabase trước Bước 2.2: chưa có client/config/migration/env/CLI. Nay đã tạo cấu trúc `supabase/config.toml`, sáu migrations, SQL tests/verification và hướng dẫn, cài parser dev dependency. Chưa cài Supabase client/CLI, chưa có cấu hình Cloud/secret hoặc linked project; chưa truy cập Cloud. Cấu hình local không tự thay cài đặt Dashboard.
+R2 private, object key gắn tenant và metadata trong D1. Download phải qua kiểm tra identity/membership/role/tenant/record scope, không trả đường dẫn public cố định. Upload kiểm tra MIME/đuôi/size/nội dung ở server, lifecycle pending/ready, chống ghi đè chứng cứ. D1 và R2 không phải một transaction chung; cần retry/dọn orphan và audit, không coi metadata tồn tại là file đã upload/backup thành công.
+
+## 6. Quy tắc nghiệp vụ không thay đổi
+
+- Ba nguồn chính; một chủ trì + nhiều phối hợp; lãnh đạo chỉ đạo; mỗi nhiệm vụ một ID duy nhất trong tenant.
+- Hạn gốc bất biến. Hạn hiệu lực từ quyết định gia hạn hợp lệ gần nhất; pending/rejected không đổi hạn, kể cả lần 2 sau lần 1 approved. Chỉ một pending/task.
+- Ngày lịch Việt Nam: `daysLeft = effectiveDue - businessToday`; >=6 còn hạn, 3..5 nguy cơ, 0..2 khẩn, <0 quá hạn. Ngày đến hạn vẫn đúng hạn cả ngày. Trạng thái thực hiện/hạn/gia hạn độc lập.
+- Một văn bản đôn đốc nhiều task; count theo liên kết hợp lệ không hủy. Mở/sửa/tải lại không tăng lượt. Không tự phát hành/gửi văn bản hoặc đổi hạn/status khi đôn đốc.
+- Hoàn thành phải có ngày thực tế hợp lệ, kết quả, người có quyền xác nhận và timestamp server; snapshot hạn tại thời điểm xác nhận, phân loại đúng/chậm theo snapshot, không hồi tố âm thầm. 100% không tự hoàn thành.
+- KPI từ DISTINCT task ID trong tenant và cùng bộ lọc/asOf; thống kê theo chủ trì, phối hợp chỉ dùng tra cứu. Tổng = hoàn thành + chưa hoàn thành; cảnh báo là tập con chưa hoàn thành; gia hạn/đôn đốc có thể giao các nhóm khác. Không hardcode số dashboard.
+- Import .xlsx 3 bước, chỉ NHAP_NHIEM_VU, header dòng 5/data từ 6, 19 cột; không tự nhập VI_DU/DANH_MUC. Preview/lỗi dòng-cột/nghi trùng/chọn chính sách trước khi ghi; kiểm tra lại backend khi xác nhận. Giữ hạn gốc và lịch sử. Không tự tạo file/đôn đốc/gia hạn từ Excel.
+- Ghi liên bảng phải nguyên tử theo khả năng D1 transaction/batch đã kiểm thử; optimistic version, idempotency và audit cùng thay đổi. Không suy ra rằng các request API rời rạc là một transaction. Thiết kế B/D phải chứng minh không ghi một phần khi guard/version thất bại.
+
+## 7. Workers Static Assets và môi trường
+
+Yêu cầu mới nhất [Chặng A Worker](cloudflare/STAGE_A_WORKERS_REQUEST.md) thay cấu hình Pages cũ. `wrangler.jsonc` dùng Worker `theodoinhiemvu`, `main=worker/index.ts`, compatibility date 2026-11-06, assets `dist`, binding `ASSETS`, SPA fallback. `run_worker_first=["/api","/api/*"]` buộc mọi API qua Worker, kể cả navigation. Không dùng `_routes.json`, `pages_build_output_dir`, Pages Functions hoặc Cloudflare Vite plugin. Mã Pages cũ được lưu tại `docs/archive/2026-11-06-before-workers` và ZIP backup.
+
+Health chỉ trả `{"status":"ok","service":"theo-doi-nhiem-vu-api"}`, JSON UTF-8/no-store. API chưa có trả 404 JSON, method health không hỗ trợ trả 405. Health không phải kiểm tra readiness D1/R2/Auth. Client service đã chuẩn bị; DemoProvider/login và nghiệp vụ vẫn mô phỏng.
+
+Local `npm run dev:worker`, địa chỉ 127.0.0.1:8788, chạy workerd thật và override APP_ENV=development. Theo A.2 dùng Worker Previews với khối `previews` thật: APP_ENV=preview, D1/R2 rỗng; không named env.preview hoặc Version URLs làm thay thế. Wrangler 4.157.0 đáp ứng >=4.135.0; `npm run preview:worker` gọi `wrangler preview --ignore-base-config`. Máy chưa đăng nhập và Builds chưa xác minh nên chưa push/deploy. D1/R2/Auth thật chưa có; không dùng tài nguyên Production cho test.
+
+Vercel giữ nguyên. Không deploy/push trong lượt này. Nhánh A.2 `feature/cloudflare-worker-stage-a` chỉ được push sau khi xác nhận repo/branch control/Preview command an toàn. Preview dùng `wrangler preview`, không deploy/versions upload; tên parent Worker vẫn `theodoinhiemvu`. Chi tiết tại [hướng dẫn A.2](cloudflare/WORKER_PREVIEWS_A2.md).
+
+## 8. Lộ trình A–E và tiêu chí nghiệm thu
+
+| Chặng | Bàn giao đầy đủ | Điều kiện nghiệm thu | Hiện tại |
+|---|---|---|---|
+| A — Hạ tầng | Kiểm tra local/GitHub; ưu tiên local; ZIP/branch/checkpoint; công cụ project; Workers Static Assets/Worker API; health; service client; UI Mock nguyên vẹn | Build/typecheck, API và frontend chung origin local; test cũ đạt; báo file/URL/hướng dẫn Dashboard | Đã làm local, chờ chủ sản phẩm nghiệm thu |
+| B — Database/quyền | D1 schema đa tenant, versioned SQLite migration/seed Hương Đô; identity/JWT; membership/role; test tenant A/B; bootstrap Super Admin | Local DB tồn tại qua restart; composite FK/permission chặn truy cập chéo; không tự nâng quyền; không tự cấp data access cho Super Admin | Chưa triển khai; chỉ bắt đầu sau duyệt A |
+| C — Quản trị | Tenant TreeView/cơ cấu; tài khoản, role, invite/reset/revoke/lock; audit quản trị đúng phạm vi | API và UI cùng capability, không sửa tenant khác, thu hồi quyền có hiệu lực, không lộ password/secret, không Super Admin đọc data nội bộ mặc định | Chưa triển khai |
+| D — Nghiệp vụ | CRUD thật; tiến độ/hoàn thành; KPI/report; đôn đốc/gia hạn; import/export Excel; R2 file | V1.3 từ đầu đến cuối qua API; backend thực thi hạn/snapshot; transaction/version/retry; số liệu khớp; file có quyền | Chưa triển khai; UI hiện chỉ mô phỏng |
+| E — QA/triển khai | Test tự động, xuyên tenant, backup/restore D1+R2; Worker Preview; dữ liệu test; Production sau duyệt | Kiểm thử và khôi phục DB lẫn file; build/test đạt; không blocker; PO duyệt riêng Production | Chưa triển khai |
+
+Chặng A đã có 28 unit tests và 9 browser tests trong [báo cáo A](qa/CLOUDFLARE_WORKERS_STAGE_A.md). Kết quả đó không nghiệm thu D1/Auth/tenant isolation hoặc nghiệp vụ lưu thật. Đưa token vào request không biến middleware A thành Auth thật.
+
+## 9. Hướng dẫn tiếp tục và điều kiện dừng
+
+- Yêu cầu trực tiếp mới nhất và master đã hợp nhất là chuẩn yêu cầu. Dùng [bảng truy vết](cloudflare/REQUIREMENTS_TRACEABILITY.md) để xác định phần nào có code, phần nào chỉ được ghi vào kế hoạch.
+- `prompts/00_PHAN_TICH_TRUOC_KHI_CODE.md`: phân tích thay đổi trên ứng dụng hiện có; không khởi tạo mới.
+- `prompts/01_DUNG_GIAO_DIEN_MAU.md`: bảo toàn/kiểm tra UI sẵn có; `01A_CLOUDFLARE_WORKERS_HA_TANG.md`: Chặng A.
+- `prompts/02_TAO_DATABASE_API_DANG_NHAP.md`: B D1/Auth/multi-tenant; `02C_QUAN_TRI_TENANT.md`: C.
+- `prompts/03_IMPORT_DON_DOC_GIA_HAN.md`: toàn bộ D; `04_KIEM_THU_NGHIEM_THU.md`: E.
+- Chưa duyệt A thì không chạy prompt B như một lệnh thực thi. Không coi nhận xét tài liệu còn thiếu là phê duyệt làm B–E.
+- Các file Supabase PostgreSQL cũ giữ nguyên làm lịch sử/tham khảo nghiệp vụ; không apply vào D1, không tự cài SQL Server/.NET và không sử dụng bảng/quyền đơn cơ quan cũ làm backend đích.

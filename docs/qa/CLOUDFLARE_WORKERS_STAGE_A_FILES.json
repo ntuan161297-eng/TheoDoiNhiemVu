@@ -1,0 +1,243 @@
+{
+  "baseline": "2e17c3c182f0ad1f3037c454600697ac3768ad7b",
+  "backup": "D:\\ubnd-huong-do-tasks\\backups\\before-workers-stage-a-20261106-144013.zip",
+  "scope": "Changes in Worker Stage A only; previous uncommitted files are part of baseline.",
+  "files": [
+    {
+      "status": "modified",
+      "path": "README.md"
+    },
+    {
+      "status": "modified",
+      "path": "README_BAT_DAU.md"
+    },
+    {
+      "status": "modified",
+      "path": "docs/IMPLEMENTATION_PLAN.md"
+    },
+    {
+      "status": "modified",
+      "path": "docs/analysis/STAGE2_SUPABASE_ARCHITECTURE.md"
+    },
+    {
+      "status": "added",
+      "path": "docs/archive/2026-11-06-before-workers/README.md"
+    },
+    {
+      "status": "added",
+      "path": "docs/archive/2026-11-06-before-workers/docs/cloudflare/MASTER_PROMPT.md"
+    },
+    {
+      "status": "added",
+      "path": "docs/archive/2026-11-06-before-workers/docs/cloudflare/README.md"
+    },
+    {
+      "status": "added",
+      "path": "docs/archive/2026-11-06-before-workers/docs/qa/CLOUDFLARE_STAGE_A.md"
+    },
+    {
+      "status": "added",
+      "path": "docs/archive/2026-11-06-before-workers/functions/api/[[path]].ts"
+    },
+    {
+      "status": "added",
+      "path": "docs/archive/2026-11-06-before-workers/functions/api/_middleware.ts"
+    },
+    {
+      "status": "added",
+      "path": "docs/archive/2026-11-06-before-workers/functions/api/health.ts"
+    },
+    {
+      "status": "added",
+      "path": "docs/archive/2026-11-06-before-workers/playwright.pages.config.ts"
+    },
+    {
+      "status": "added",
+      "path": "docs/archive/2026-11-06-before-workers/public/_routes.json"
+    },
+    {
+      "status": "added",
+      "path": "docs/archive/2026-11-06-before-workers/tests/functions/health.test.ts"
+    },
+    {
+      "status": "added",
+      "path": "docs/archive/2026-11-06-before-workers/tests/pages/infrastructure.spec.ts"
+    },
+    {
+      "status": "added",
+      "path": "docs/archive/2026-11-06-before-workers/tsconfig.functions.json"
+    },
+    {
+      "status": "modified",
+      "path": "docs/cloudflare/MASTER_PROMPT.md"
+    },
+    {
+      "status": "modified",
+      "path": "docs/cloudflare/README.md"
+    },
+    {
+      "status": "modified",
+      "path": "docs/cloudflare/REQUIREMENTS_TRACEABILITY.md"
+    },
+    {
+      "status": "added",
+      "path": "docs/cloudflare/STAGE_A_WORKERS_REQUEST.md"
+    },
+    {
+      "status": "modified",
+      "path": "docs/product/00_DOC_TRUOC.md"
+    },
+    {
+      "status": "modified",
+      "path": "docs/product/00_START_HERE.md"
+    },
+    {
+      "status": "modified",
+      "path": "docs/product/01_PRD_NGHIEP_VU_V13.md"
+    },
+    {
+      "status": "modified",
+      "path": "docs/product/03_DOMAIN_DATA_AND_RULES.md"
+    },
+    {
+      "status": "modified",
+      "path": "docs/qa/CLOUDFLARE_STAGE_A.md"
+    },
+    {
+      "status": "added",
+      "path": "docs/qa/CLOUDFLARE_WORKERS_STAGE_A.md"
+    },
+    {
+      "status": "removed-from-active-tree",
+      "path": "functions/api/[[path]].ts"
+    },
+    {
+      "status": "removed-from-active-tree",
+      "path": "functions/api/_middleware.ts"
+    },
+    {
+      "status": "removed-from-active-tree",
+      "path": "functions/api/health.ts"
+    },
+    {
+      "status": "modified",
+      "path": "package.json"
+    },
+    {
+      "status": "removed-from-active-tree",
+      "path": "playwright.pages.config.ts"
+    },
+    {
+      "status": "added",
+      "path": "playwright.worker.config.ts"
+    },
+    {
+      "status": "modified",
+      "path": "prompts/00_PHAN_TICH_TRUOC_KHI_CODE.md"
+    },
+    {
+      "status": "removed-from-active-tree",
+      "path": "prompts/01A_CLOUDFLARE_PAGES_HA_TANG.md"
+    },
+    {
+      "status": "added",
+      "path": "prompts/01A_CLOUDFLARE_WORKERS_HA_TANG.md"
+    },
+    {
+      "status": "modified",
+      "path": "prompts/01_DUNG_GIAO_DIEN_MAU.md"
+    },
+    {
+      "status": "modified",
+      "path": "prompts/02C_QUAN_TRI_TENANT.md"
+    },
+    {
+      "status": "modified",
+      "path": "prompts/02_TAO_DATABASE_API_DANG_NHAP.md"
+    },
+    {
+      "status": "modified",
+      "path": "prompts/03_IMPORT_DON_DOC_GIA_HAN.md"
+    },
+    {
+      "status": "modified",
+      "path": "prompts/04_KIEM_THU_NGHIEM_THU.md"
+    },
+    {
+      "status": "removed-from-active-tree",
+      "path": "public/_routes.json"
+    },
+    {
+      "status": "removed-from-active-tree",
+      "path": "scripts/prepare-pages-runtime.ps1"
+    },
+    {
+      "status": "added",
+      "path": "scripts/prepare-worker-runtime.ps1"
+    },
+    {
+      "status": "modified",
+      "path": "scripts/wrangler-local.mjs"
+    },
+    {
+      "status": "modified",
+      "path": "server/env.ts"
+    },
+    {
+      "status": "modified",
+      "path": "server/http.ts"
+    },
+    {
+      "status": "modified",
+      "path": "shared/api.ts"
+    },
+    {
+      "status": "modified",
+      "path": "src/services/api.test.ts"
+    },
+    {
+      "status": "modified",
+      "path": "src/services/api.ts"
+    },
+    {
+      "status": "removed-from-active-tree",
+      "path": "tests/functions/health.test.ts"
+    },
+    {
+      "status": "removed-from-active-tree",
+      "path": "tests/pages/infrastructure.spec.ts"
+    },
+    {
+      "status": "added",
+      "path": "tests/worker/health.test.ts"
+    },
+    {
+      "status": "added",
+      "path": "tests/worker/infrastructure.spec.ts"
+    },
+    {
+      "status": "removed-from-active-tree",
+      "path": "tsconfig.functions.json"
+    },
+    {
+      "status": "added",
+      "path": "tsconfig.worker.json"
+    },
+    {
+      "status": "modified",
+      "path": "vitest.config.ts"
+    },
+    {
+      "status": "added",
+      "path": "worker/index.ts"
+    },
+    {
+      "status": "modified",
+      "path": "wrangler.jsonc"
+    },
+    {
+      "status": "added",
+      "path": "docs/qa/CLOUDFLARE_WORKERS_STAGE_A_FILES.json"
+    }
+  ]
+}

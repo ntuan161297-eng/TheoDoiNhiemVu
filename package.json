@@ -6,16 +6,19 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "npm run check:types && vite build",
-    "check:types": "tsc -b && tsc -p tsconfig.functions.json",
-    "build:functions": "node scripts/wrangler-local.mjs pages functions build functions --outdir .local/cloudflare/functions-build",
-    "dev:pages": "npm run build && npm run pages:serve",
-    "pages:serve": "node scripts/wrangler-local.mjs pages dev dist --ip 127.0.0.1 --port 8788 --persist-to .local/cloudflare/state --show-interactive-dev-session=false --binding APP_ENV=development",
-    "prepare:pages-runtime": "powershell -NoProfile -File scripts/prepare-pages-runtime.ps1",
-    "test:ui:pages": "playwright test --config playwright.pages.config.ts",
+    "check:types": "tsc -b && tsc -p tsconfig.worker.json",
     "preview": "vite preview --host 127.0.0.1",
     "test": "vitest run",
     "check:sql": "node scripts/check-supabase-sql.mjs",
-    "test:ui": "playwright test"
+    "test:ui": "playwright test",
+    "dev:worker": "npm run build && npm run worker:serve",
+    "worker:serve": "node scripts/wrangler-local.mjs dev --ip 127.0.0.1 --port 8788 --persist-to .local/cloudflare/worker-state --show-interactive-dev-session=false --var APP_ENV:development",
+    "prepare:worker-runtime": "powershell -NoProfile -File scripts/prepare-worker-runtime.ps1",
+    "build:worker": "node scripts/wrangler-local.mjs deploy --name theodoinhiemvu-build-check --dry-run --outdir .local/cloudflare/worker-build",
+    "check:preview": "node scripts/check-worker-preview.mjs",
+    "preview:worker": "npm run check:preview && node scripts/wrangler-local.mjs preview --ignore-base-config",
+    "test:ui:worker": "playwright test --config playwright.worker.config.ts",
+    "test:ui:preview": "playwright test --config playwright.preview.config.ts"
   },
   "dependencies": {
     "@ant-design/icons": "^5.6.1",

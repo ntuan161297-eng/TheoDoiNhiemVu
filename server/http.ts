@@ -1,6 +1,6 @@
 import type { ApiFailure, ApiSuccess } from '../shared/api';
 
-function json(payload: unknown, requestId: string, status: number, headers?: HeadersInit): Response {
+export function json(payload: unknown, requestId: string, status = 200, headers?: HeadersInit): Response {
   const resultHeaders = new Headers(headers);
   resultHeaders.set('Content-Type', 'application/json; charset=utf-8');
   resultHeaders.set('Cache-Control', 'no-store');

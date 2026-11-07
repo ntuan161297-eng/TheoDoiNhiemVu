@@ -1,19 +1,24 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "theo-doi-nhiem-vu",
-  "pages_build_output_dir": "./dist",
-  "compatibility_date": "2026-11-01",
+  "name": "theodoinhiemvu",
+  "main": "./worker/index.ts",
+  "compatibility_date": "2026-11-06",
   "send_metrics": false,
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api", "/api/*"]
+  },
   // No real D1/R2 resources, credentials or remote bindings in Stage A.
   "vars": {
-    "APP_ENV": "development"
+    "APP_ENV": "production"
   },
-  "env": {
-    "preview": {
-      "vars": { "APP_ENV": "staging" }
-    },
-    "production": {
-      "vars": { "APP_ENV": "production" }
-    }
+  // Worker Previews (Wrangler >= 4.135); not a named environment or Version URL.
+  // Never add production resources here. Stage A has no DB, R2 or Auth secrets.
+  "previews": {
+    "vars": { "APP_ENV": "preview" },
+    "d1_databases": [],
+    "r2_buckets": []
   }
 }

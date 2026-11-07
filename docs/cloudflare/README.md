@@ -1,96 +1,83 @@
-# Chạy local và triển khai Cloudflare Pages — Chặng A
+# Workers Static Assets + Worker API — Chặng A
 
-Cập nhật 06/11/2026. Tích hợp vào frontend hiện có, không tạo ứng dụng mới. Chặng A đã chạy frontend + Pages Functions trên workerd local; UI và đăng nhập vẫn DEMO. Chưa có database nghiệp vụ, Auth thật, R2 hoặc phân quyền đa Tenant. Không deploy, push GitHub hay thay Vercel Production trong lượt tích hợp.
+Cập nhật 06/11/2026 theo [yêu cầu mới nhất, nguyên văn](STAGE_A_WORKERS_REQUEST.md). Dùng **Workers Static Assets + Worker API**, Wrangler truyền thống; không dùng Cloudflare Vite plugin hoặc tạo Pages Project. [Master hợp nhất](MASTER_PROMPT.md), [kế hoạch](../IMPLEMENTATION_PLAN.md), [truy vết](REQUIREMENTS_TRACEABILITY.md), [báo cáo kiểm thử](../qa/CLOUDFLARE_WORKERS_STAGE_A.md).
 
-## Mở ứng dụng trên máy hiện tại
+## Mở ứng dụng local
 
-Mở `http://127.0.0.1:8788/`, chọn vai trò, bấm **Vào giao diện DEMO**. API: `http://127.0.0.1:8788/api/health`.
-
-Nếu server đã tắt, mở PowerShell tại dự án:
+Mở **http://127.0.0.1:8788/**, chọn vai trò và bấm **Vào giao diện DEMO**. API: **http://127.0.0.1:8788/api/health**. Nếu server chưa chạy:
 
 ```powershell
 cd D:\ubnd-huong-do-tasks
-npm run dev:pages
+npm run dev:worker
 ```
 
-Lệnh build frontend, typecheck Functions rồi chạy chung một origin 8788. Khi đã build và chỉ cần khởi động lại: `npm run pages:serve`. Giữ cửa sổ terminal nếu chạy bằng tay. `npm run dev` vẫn là Vite tại 5173, proxy `/api` đến Pages 8788 khi server Pages đang chạy.
+Lệnh build React và typecheck frontend/Worker, rồi chạy `wrangler dev` trên workerd thật, cùng origin 8788. Khi đã build: `npm run worker:serve`. Giữ terminal khi chạy bằng tay. `npm run dev` vẫn chạy Vite hot reload tại 5173, proxy `/api` sang Worker 8788; phải chạy Worker nếu cần gọi API. Vite preview riêng không có API.
 
-Máy mới chạy `npm ci` trước. Node đã kiểm tra: 22.14.0. Wrangler ghim 4.157.0; Workers types 5.20261104.1. Không cần .NET, SQL Server, PostgreSQL, Docker hoặc tài khoản Cloudflare để chạy Chặng A local.
+Máy mới chạy `npm ci`. Đã kiểm tra Node 22.14.0, Wrangler ghim 4.157.0, Workers types 5.20261104.1. Không thêm dependency; package-lock giữ nguyên. Không cần tài khoản Cloudflare, D1, R2, Docker, .NET hoặc SQL Server để kiểm tra A local.
 
-### Trường hợp Windows hiện tại
-
-Máy này Windows 10 Pro 1909; native workerd lúc đầu lỗi `0xc0000005`. Đã chạy được bằng DLL Microsoft 14.51 có sẵn trong Edge, xác minh chữ ký và chỉ sao chép cạnh workerd trong `.local/cloudflare/workerd-runtime`. Không cài VC++ hoặc sửa System32/registry/PATH. DLL, binary, logs và state không vào Git.
-
-Khi `.local` chưa được chuẩn bị trên **máy Windows này**, chạy một lần:
+Windows 10 hiện tại dùng runtime Microsoft có sẵn trong Edge, xác minh chữ ký/hash và chỉ copy cạnh workerd trong `.local`; không sửa System32/registry/PATH. Nếu chưa chuẩn bị hoặc workerd đổi phiên bản:
 
 ```powershell
-npm run prepare:pages-runtime
-npm run dev:pages
+npm run prepare:worker-runtime
+npm run dev:worker
 ```
 
-Script chỉ dùng bộ DLL Microsoft có sẵn, không tải/cài thư viện hệ thống; có thể chỉ định thư mục runtime Microsoft đã có qua biến process `CLOUDFLARE_VC_RUNTIME_DIR`. Runner kiểm tra hash binary/DLL trước khi dùng, yêu cầu chuẩn bị lại khi workerd thay phiên bản. Máy Windows 11/Linux tương thích chạy bình thường mà không cần bước này. Không coi giải pháp local này là thay đổi danh sách OS được Cloudflare hỗ trợ. [Yêu cầu Wrangler](https://developers.cloudflare.com/workers/wrangler/install-and-update/), [Microsoft app-local runtime](https://learn.microsoft.com/en-us/cpp/windows/deployment-in-visual-cpp?view=msvc-170).
+Script không tải/cài phần mềm hệ thống. Windows 11/Linux tương thích không cần workaround này. DLL/binary/state/logs không vào Git. [Yêu cầu OS chính thức](https://developers.cloudflare.com/workers/wrangler/install-and-update/).
 
-## Đang có gì
+## Kiến trúc hoạt động
 
-- `wrangler.jsonc`: cấu hình **Pages**, `pages_build_output_dir=dist`, compatibility date 2026-11-01; vars development/staging/production tách riêng. Không có Workers Static Assets `main/assets` hoặc resource ID thật.
-- `functions/api/health.ts`: GET/HEAD health, POST trả 405. JSON có stage/mode, giờ Việt Nam và request ID; dependency DB/Auth/Storage ghi rõ chưa bật. Đây không phải phép kiểm tra DB/Auth/R2 đã kết nối.
-- `functions/api/_middleware.ts`: correlation ID, no-store, lỗi JSON không lộ stack; chỉ health được mở. API nghiệp vụ/tenant khác trả 404 kể cả gửi bearer token chưa xác minh. Chưa phải middleware Auth hoàn chỉnh.
-- `public/_routes.json`: chỉ `/api` và `/api/*` chạy Functions. JS/CSS/font/ảnh và đường dẫn UI dùng Pages static hosting. Không tạo `404.html`, dùng SPA fallback mặc định; reload các route hoạt động. API không tồn tại giữ JSON 404, không bị trả HTML SPA.
-- `src/services/api.ts`: typed client same-origin, JSON envelope/lỗi, cancellation, bearer/tenant header cho bước sau; **chưa nối vào DemoProvider/login**. Không lấy role DEMO làm token hoặc quyền.
-- Contract D1 binding `DB`, R2 binding `DOCUMENTS` ở `server/env.ts`. Mẫu cấu hình ở `wrangler.bindings.example.jsonc` chỉ tham khảo, không được CLI tự load; chưa tạo/gắn D1/R2 thật.
+- `wrangler.jsonc`: Worker gốc `theodoinhiemvu`, `main=worker/index.ts`, compatibility date 2026-11-06. Chưa upload cấu hình này lên Cloud.
+- Assets `dist`, binding `ASSETS`, SPA fallback. `run_worker_first=["/api","/api/*"]` ưu tiên API, kể cả navigation; JS/CSS/font/ảnh dùng static assets.
+- `worker/index.ts`: GET/HEAD health; API chưa có trả 404 JSON; method health khác trả 405/Allow. Chưa Auth/middleware quyền backend.
+- `server/env.ts`, `server/http.ts`, `shared/api.ts`: binding contract, JSON/request ID, headers, kiểu dữ liệu. Health không trả env/secrets/readiness DB giả.
+- `src/services/api.ts`: đường dẫn tương đối cùng origin, TypeScript, xử lý HTTP/HTML sai định dạng, bearer/tenant contract cho tương lai. Chưa nối vào DemoProvider/login hoặc nghiệp vụ.
+- D1/R2 chỉ có contract optional chưa gắn và [ví dụ không active](wrangler.bindings.example.jsonc). Chưa database/Auth/storage/tenant isolation thật.
 
-Thay đổi DEMO vẫn mất khi reload theo thiết kế cũ. Đồng hồ Việt Nam giữ nguyên; chưa thêm ngày âm hay TreeView nếu trước đó chưa có.
+Health 200, `Content-Type: application/json; charset=utf-8`, `Cache-Control: no-store`; HEAD không body:
 
-## Kiểm tra đã chạy
+```json
+{"status":"ok","service":"theo-doi-nhiem-vu-api"}
+```
+
+Mã Pages cũ được bảo toàn trong [archive](../archive/2026-11-06-before-workers/README.md) và ZIP; đã bỏ khỏi build/test hiện hành. Không dùng `pages_build_output_dir`, `functions/`, `_routes.json`, `wrangler pages dev/deploy` cho Worker này. `vercel.json` giữ nguyên.
+
+## Kiểm thử
 
 ```powershell
 npm run build
-npm run build:functions
+npm run build:worker
 npm run test
-npm run test:ui:pages
+npm run test:ui:worker
+curl.exe -i http://127.0.0.1:8788/api/health
+curl.exe -i -H "Sec-Fetch-Mode: navigate" http://127.0.0.1:8788/api/health
+curl.exe -i -H "Sec-Fetch-Mode: navigate" http://127.0.0.1:8788/api/khong-ton-tai
 ```
 
-- Frontend và Functions typecheck/build thành công. Cảnh báo bundle Vite >500 kB vẫn còn, không có lỗi build chặn.
-- 26 unit tests đạt (14 nghiệp vụ cũ, 6 client, 6 Functions).
-- 9 bài browser đạt: toàn bộ 7 bài UI cũ và 2 bài Pages/API, gồm desktop/tablet/mobile, biểu mẫu/drawer/import DEMO/gia hạn/đôn đốc/KPI/xuất CSV và direct-link/reload.
-- Ảnh QA mới ở `.local/cloudflare/qa`; không ghi đè ảnh nghiệm thu cũ. Test API/asset thực hiện trên **Pages/workerd thật**, không phải Vite preview hoặc Node API thay thế.
-- SQL Supabase cũ vẫn qua 404 kiểm tra tĩnh, chưa thực thi. Chúng được giữ làm lịch sử/tham khảo, **không dùng làm migration D1**.
+`build:worker` gọi **deploy --name theodoinhiemvu-build-check --dry-run**, chỉ bundle local, không upload/deploy. 28 unit + 9 browser tests đạt trên workerd; bao gồm direct/reload sáu UI routes, API fetch/navigation/404/405/HEAD và JS/CSS/ảnh. Toàn bộ 7 bài UI cũ giữ nguyên assertion; ảnh mới ở `.local/cloudflare/worker-qa`. Còn cảnh báo bundle Vite lớn, không chặn build.
 
-## Đưa bản hiện tại lên Cloudflare Preview bằng CLI
+## Worker Previews A.2 — cần xác nhận Dashboard trước push
 
-Đây là hướng dẫn để chủ sản phẩm thực hiện/phê duyệt, **chưa được chạy**. Bản mới đang ở nhánh local `feat/cloudflare-pages-stage-a`; không cần push hoặc thay Vercel nếu dùng cách CLI này.
+Theo yêu cầu A.2, dùng **Worker Previews thực sự**, không Worker riêng env.preview, không versions upload. Khối previews đã có APP_ENV=preview, D1/R2 rỗng; Wrangler 4.157.0 đáp ứng yêu cầu >=4.135.0. preview_urls không thay tính năng này.
 
-Chọn cách quản lý project trước: **Git integration** phù hợp nếu muốn tự build từ GitHub lâu dài. **Direct Upload bằng CLI** phù hợp để đưa bản local lên thử ngay; project Direct Upload không đổi sang Git integration tại chỗ, muốn chuyển phải tạo project khác. Không kéo thả mỗi thư mục dist lên Dashboard vì cách đó không biên dịch thư mục Functions. [Cloudflare Direct Upload](https://developers.cloudflare.com/pages/get-started/direct-upload/).
+Nhánh local: **feature/cloudflare-worker-stage-a**. Máy chưa đăng nhập Cloudflare, chưa xác minh Builds; **chưa push/deploy và chưa có URL Preview**. Chỉ push nhánh feature sau xác nhận an toàn theo yêu cầu chủ sản phẩm.
 
-Với một project thử nghiệm mới dùng Direct Upload, chạy từ **root dự án**, không chạy trong dist:
+Trên Dashboard: **Workers & Pages → theodoinhiemvu → Settings → Builds**:
 
-```powershell
-cd D:\ubnd-huong-do-tasks
-npm run build
-npx wrangler login
-npx wrangler pages project create theo-doi-nhiem-vu --production-branch main
-npx wrangler pages deploy dist --project-name theo-doi-nhiem-vu --branch feat/cloudflare-pages-stage-a
-```
+| Mục | Giá trị cần kiểm tra |
+|---|---|
+| Repository/root | ntuan161297-eng/TheoDoiNhiemVu, root repo |
+| Production branch | main |
+| Enable Preview Builds | Bật, cho phép nhánh feature/cloudflare-worker-stage-a |
+| Build command | npm run build |
+| Preview command | npx wrangler preview --ignore-base-config |
+| Worker name | theodoinhiemvu |
+| Node | 22 |
+| Preview resources/secrets | Không có ở A.2, không dùng chung Production |
 
-Browser mở để anh đăng nhập và cấp quyền Cloudflare; không gửi token/mật khẩu vào chat. Lệnh create chỉ dùng khi project chưa tồn tại. Nếu tên đã có, kiểm tra project/chủ sở hữu và Production branch trước, không ghi đè project không rõ nguồn.
+Nếu còn banner **Set up Worker Previews**, xem hướng dẫn chuyển mô hình một lần trước khi push. Không sửa Production branch/deploy command/traffic. CLI chưa đăng nhập: người dùng chạy npx wrangler login và npx wrangler whoami khi chọn cách CLI; không gửi token lên chat.
 
-`--branch feat/cloudflare-pages-stage-a` khác Production branch `main` nên nhắm Preview. Giữ cờ branch này; không bỏ để tránh chọn nhầm môi trường. Nếu project có sẵn, phải xác nhận Production branch thực tế không trùng nhánh preview. CLI tự biên dịch `functions/` từ root cùng assets dist và trả URL Preview; dùng chính URL CLI trả về, không đoán địa chỉ. [Pages CLI](https://developers.cloudflare.com/workers/wrangler/commands/pages/).
+[Hướng dẫn A.2 đầy đủ: chuyển mô hình, Previews Base, push và kiểm thử](WORKER_PREVIEWS_A2.md). [Báo cáo trạng thái A.2](../qa/CLOUDFLARE_WORKER_PREVIEWS_A2.md).
 
-Sau deploy Preview, kiểm tra URL `/`, `/api/health`, `/tong-quan`, `/nhiem-vu`, `/bao-cao`; F5 trên các trang; `/api/tasks` phải JSON 404 ở Chặng A. Health môi trường Preview phải ghi staging, không có DB/Auth/Storage enabled. Chưa đưa tài liệu thật hoặc dữ liệu nội bộ lên Cloudflare.
+Sau khi account và Builds đã xác nhận an toàn, lệnh Preview local là npm run preview:worker, gọi wrangler preview --ignore-base-config. Lệnh chưa thực hiện. Cờ bỏ Base chỉ áp dụng khi tạo mới; phải kiểm tra riêng secrets/bindings nếu Preview cùng tên đã tồn tại. Không sử dụng wrangler deploy hoặc wrangler versions upload làm đường triển khai A.2.
 
-## Nếu muốn kết nối GitHub để tự build
-
-1. Commit và push **nhánh tích hợp** lên repository `ntuan161297-eng/TheoDoiNhiemVu` sau khi cho phép. Hiện main trên GitHub chưa có phần Cloudflare này; không deploy nhầm bản main cũ.
-2. Trong Dashboard: **Workers & Pages → Create application → Pages → Connect to Git**, chọn GitHub/repo trên. Chọn Pages, không chuyển sang Workers Static Assets.
-3. Cấu hình: Framework **Vite**, build command **`npm run build`**, output **`dist`**, root **root repository** (để trống hoặc `/`), Node **22**. Dùng tên project phù hợp `name` trong Wrangler; đối chiếu cấu hình trước deploy.
-4. Xác định Production branch và preview branch controls trước khi bấm **Save and Deploy**. Đó là thao tác triển khai thật, cần phê duyệt môi trường; không dùng bước tạo project để âm thầm phát hành Production. Các nhánh khác Production dùng Preview theo thiết lập của project.
-5. Functions lấy từ thư mục functions ở root; các var/config Preview/Production cần đúng môi trường. Không thêm secret/service_role vào `VITE_*`. Chặng A chưa cần D1/R2 binding hoặc Auth secrets.
-
-Chưa thực hiện thao tác Dashboard/đăng nhập/push/deploy thay người dùng. [Hướng dẫn Git integration](https://developers.cloudflare.com/pages/get-started/git-integration/).
-
-## Các bước kế tiếp cần duyệt riêng
-
-- **B:** schema D1 SQLite đa Tenant, composite FK, membership/role, Auth JWT/JWKS, test xuyên Tenant, bootstrap Super Admin an toàn. Không dùng PostgreSQL RPC/RLS trên D1.
-- **C:** quản trị tenant/cơ cấu/tài khoản/TreeView, invite/reset/revoke qua identity provider.
-- **D:** nối UI sang API và triển khai nghiệp vụ thật, R2, import/export.
-- **E:** QA, backup/restore D1+R2, Preview, rồi Production khi được duyệt. Yêu cầu hiện tại chỉ hỏi hướng dẫn triển khai; chưa tự thực hiện các bước Cloud.
+Khi có URL thực tế từ log/Cloudflare Dashboard, đặt WORKER_PREVIEW_URL và chạy npm run test:ui:preview. Cấu hình từ chối hostname Production, chạy toàn bộ 9 bài frontend/API trên Preview, không mở server local. Không dùng test local để tuyên bố Preview đạt. Dừng chờ nghiệm thu sau Preview, chưa chuyển B.

@@ -1,5 +1,7 @@
 # ĐẶC TẢ NGHIỆP VỤ V1.3 — THEO DÕI NHIỆM VỤ UBND XÃ HƯƠNG ĐÔ
 
+> Quy tắc nghiệp vụ V1.3 tiếp tục áp dụng. Riêng kiến trúc gợi ý cũ và phạm vi một cơ quan được [master Cloudflare đa Tenant](../cloudflare/MASTER_PROMPT.md) cập nhật: Worker API/D1/R2, Supabase chỉ cân nhắc cho Auth. Không apply PostgreSQL/SQL Server hoặc mặc định quyền ADMIN cũ cho mọi Tenant; xem [kế hoạch hiện hành](../IMPLEMENTATION_PLAN.md).
+
 ## A. Mục đích, người dùng và ranh giới
 - **Người hưởng lợi chính:** Lãnh đạo Văn phòng HĐND - UBND xã; xem nhanh nhiệm vụ, trách nhiệm đơn vị, các trường hợp cần đôn đốc/gia hạn.
 - **Người cập nhật:** Cán bộ Văn phòng; nhập tay hoặc import Excel; ghi nhận báo cáo từ phòng ban qua kênh bên ngoài; cập nhật tiến độ, văn bản đôn đốc, đề nghị gia hạn, kết quả và tài liệu.

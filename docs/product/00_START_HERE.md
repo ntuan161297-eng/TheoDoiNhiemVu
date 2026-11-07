@@ -1,37 +1,25 @@
-# BẮT ĐẦU Ở ĐÂY — THEO DÕI NHIỆM VỤ UBND XÃ HƯƠNG ĐÔ
+# BẮT ĐẦU Ở ĐÂY — DỰ ÁN CLOUDFLARE HIỆN CÓ
 
-**Bản đặc tả ưu tiên:** MVP v1.2, ngày 04/11/2026.  
-**Mục tiêu:** một sản phẩm Web tối giản nhưng dùng thật; giao diện trực quan kiểu Văn Phòng Số; Văn phòng UBND xã là đầu mối duy nhất tạo/cập nhật/xác nhận nhiệm vụ.
+Mục tiêu: theo dõi/đôn đốc nhiệm vụ cho Hương Đô trước, mở rộng nhiều cơ quan với dữ liệu và quyền riêng. Giữ sản phẩm/UI đang có, tích hợp từng bước; không tạo lại dự án.
 
-## Cách sử dụng cùng Antigravity
-1. Mở **thư mục dự án MỚI** (không chỉnh sửa repository `ntuan161297-eng/VanPhongSo` đang có).
-2. Đặt bộ tài liệu này vào thư mục `docs/product/` của dự án mới.
-3. Gửi nội dung `prompts/PROMPT_00_ANALYZE_FIRST.md` cho Agent. **Không cho code ngay**.
-4. Kiểm tra kế hoạch, mô hình dữ liệu, sơ đồ điều hướng và các giả định nghiệp vụ.
-5. Gửi `prompts/PROMPT_01_UI_FIRST.md`: dựng frontend mẫu có dữ liệu demo, xem trực quan trước.
-6. Khi giao diện được duyệt, dùng `PROMPT_02_REAL_DATA.md` nối API + SQL Server; cuối cùng `PROMPT_03_QA.md`.
+Đọc [hướng dẫn ưu tiên](00_DOC_TRUOC.md), [master đầy đủ](../cloudflare/MASTER_PROMPT.md), [kế hoạch hiện hành](../IMPLEMENTATION_PLAN.md) và [bảng truy vết](../cloudflare/REQUIREMENTS_TRACEABILITY.md).
 
-## Tài liệu ưu tiên đọc (thứ tự)
-- `01_MASTER_PRD_MVP.md`: quyết định nghiệp vụ, chức năng làm và không làm.
-- `02_UI_UX_BLUEPRINT.md`: trang, bố cục, token, trải nghiệm, tương tác.
-- `03_DOMAIN_DATA_AND_RULES.md`: trường dữ liệu, tính hạn, phân quyền, thống kê.
-- `04_GITHUB_REUSE_AUDIT.md`: những gì đã kiểm chứng trong repository nguồn; hạn chế sao chép code demo.
-- `05_ACCEPTANCE_TESTS.md`: tiêu chí nghiệm thu khách quan.
-- `seed/*.csv`: danh mục chính xác do chủ sản phẩm cung cấp.
-- `prototype/index.html`: **mẫu giao diện có dữ liệu giả định**, chỉ để chốt UX, không dùng làm hệ thống thật.
+## Chạy và kiểm tra hiện tại
 
-## Nguyên tắc quyết định
-- Bắt đầu bằng **01 module Theo dõi nhiệm vụ**, không sao chép các module dự án/giải ngân/ngân sách của Văn Phòng Số.
-- Không tạo tài khoản cho 11 đơn vị. Chỉ cán bộ Văn phòng quản trị dữ liệu và lãnh đạo xem số liệu.
-- Mỗi nhiệm vụ có **01 nguồn chính** trong 3 nguồn đã chốt; **01 đơn vị chủ trì**, 0..N đơn vị phối hợp.
-- Đếm cảnh báo từ thời hạn và ngày hiện tại, không cho người dùng tự sửa cờ `Quá hạn`.
-- Dữ liệu thật phải có backend, database, phân quyền phía server, audit log. Không đưa dữ liệu nhiệm vụ chính thức vào site demo công khai.
+Trong `D:\ubnd-huong-do-tasks`, chạy `npm run dev:worker`, mở http://127.0.0.1:8788/ và /api/health. Login/nghiệp vụ vẫn DEMO; A có Worker API hạ tầng, chưa có D1/Auth/R2/quyền đa tenant thật. Xem [hướng dẫn local/Cloudflare](../cloudflare/README.md) và [báo cáo A](../qa/CLOUDFLARE_WORKERS_STAGE_A.md).
 
-## Kiến trúc đề xuất
-- Frontend: React 18 + TypeScript + Vite + Ant Design + Recharts, kế thừa style/component được chọn của VanPhongSo.
-- Backend: ASP.NET Core Web API + EF Core, SQL Server/SQL Server Express; quản lý xác thực và phân quyền server-side.
-- Giai đoạn phê duyệt UX: mock API với dữ liệu **được đánh dấu DEMO**, không coi đó là phần mềm đã hoàn thành.
-- Không thay đổi repo `VanPhongSo` nếu chưa có yêu cầu riêng. Tạo repo mới, có lịch sử commit rõ.
+## Tiếp tục theo chặng
 
-## Thứ tự nguồn ưu tiên nếu có mâu thuẫn
-Tài liệu v1.2 này > bộ tài liệu v1.1 > ảnh chụp hệ thống khác > các giả định do Agent tự nêu. Không tự thêm tính năng vượt MVP.
+- A: kiểm tra local/GitHub, branch/backup/checkpoint, Workers Static Assets/Worker API/service/health, giữ UI.
+- B: sau duyệt A, D1 multi-tenant, SQLite migrations/seed Hương Đô, identity/Auth và permission tests A/B, Super Admin bootstrap an toàn.
+- C: tenant/cơ cấu TreeView/tài khoản/invite/reset/revoke/audit quản trị.
+- D: CRUD/tiến độ/hoàn thành/KPI/report/đôn đốc/gia hạn/import/export/file R2 thật.
+- E: QA, xuyên tenant, backup/restore D1+R2, Preview, Production sau duyệt riêng.
+
+Các prompt đúng tên ở thư mục [prompts](../../prompts/); bản đồ chi tiết trong [README bắt đầu](../../README_BAT_DAU.md). Không sử dụng các tên PROMPT_00/PROMPT_02 cũ không tồn tại trong repo. Không tự chạy toàn bộ lộ trình sau khi đọc master.
+
+## Nghiệp vụ nền tiếp tục áp dụng
+
+Một task một nguồn/chủ trì, nhiều phối hợp, lãnh đạo và hạn gốc; hạn gốc bất biến, approved mới đổi hạn hiệu lực; cảnh báo ngày lịch Việt Nam; xác nhận hoàn thành có kết quả/ngày thực tế/actor/snapshot; KPI không đếm trùng và report theo chủ trì. V1.3 ưu tiên V1.2.
+
+Seed 11/3/3 chỉ dành cho Hương Đô; các đơn vị thực hiện không tự có account từ danh mục. Tenant Admin quản lý user/membership theo phạm vi được cấp ở C. Không đưa task/văn bản nội bộ lên site demo. Lịch sử backend cũ được giữ để tham khảo, không là chỉ dẫn cài .NET/SQL Server hay apply PostgreSQL vào D1.
