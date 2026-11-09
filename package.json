@@ -18,7 +18,11 @@
     "check:preview": "node scripts/check-worker-preview.mjs",
     "preview:worker": "npm run check:preview && node scripts/wrangler-local.mjs preview --ignore-base-config",
     "test:ui:worker": "playwright test --config playwright.worker.config.ts",
-    "test:ui:preview": "playwright test --config playwright.preview.config.ts"
+    "test:ui:preview": "playwright test --config playwright.preview.config.ts",
+    "d1:migrate:local": "node scripts/wrangler-local.mjs d1 migrations apply DB --local --config wrangler.d1-local.jsonc --persist-to .local/cloudflare/d1-local",
+    "d1:list:local": "node scripts/wrangler-local.mjs d1 migrations list DB --local --config wrangler.d1-local.jsonc --persist-to .local/cloudflare/d1-local",
+    "test:d1": "vitest run --config vitest.d1.config.ts",
+    "d1:inspect:local": "node scripts/inspect-d1-local.mjs"
   },
   "dependencies": {
     "@ant-design/icons": "^5.6.1",

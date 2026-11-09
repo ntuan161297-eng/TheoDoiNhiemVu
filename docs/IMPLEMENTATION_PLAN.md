@@ -1,8 +1,10 @@
 # KẾ HOẠCH HIỆN HÀNH — CLOUDFLARE WORKERS STATIC ASSETS FULL-STACK, MULTI-TENANT
 
+> **B1.2, 09/11/2026:** D1 TEST `theodoinhiemvu-d1-test` (UUID `649fd0db-7fd3-4551-bfac-f3fccc408373`) đã áp dụng đủ 5 migration. Có 20 bảng ứng dụng, đúng seed 11/3/3; không profile/task/tenant A/B. FK check và quick_check đạt; integrity_check bị D1 từ chối SQLITE_AUTH, không đánh dấu đạt. Chỉ chuẩn bị binding Preview local, chưa push/deploy/Auth/R2. [Báo cáo B1.2 và hướng dẫn Preview](qa/D1_B1_2.md). Các trạng thái B1/A.2 cũ bên dưới là lịch sử trước B1.2.
+
 Cập nhật 06/11/2026 theo [master prompt đã hợp nhất](cloudflare/MASTER_PROMPT.md). Đây là kế hoạch thay thế toàn bộ phương án backend cũ; không chỉ là chú thích bổ sung lên kế hoạch Supabase.
 
-**Trạng thái thực tế:** Chặng A đã chuyển sang Workers Static Assets + Worker API theo yêu cầu mới ngày 06/11/2026 và kiểm tra local, chờ chủ sản phẩm nghiệm thu trước Preview. Chặng B–E chưa triển khai. Việc đồng bộ tài liệu không phải phê duyệt triển khai B, tạo database/tài khoản, push, migration remote hoặc deploy.
+**Trạng thái thực tế ngày 09/11/2026:** A đã nghiệm thu. B1/B1.2 đã có D1 local và migrate đúng D1 TEST remote được duyệt, 20 bảng/5 migrations/seed danh mục. Auth B2 và C/D/E chưa triển khai; UI vẫn DEMO. Preview DB binding chỉ chuẩn bị local, chưa push/deploy. Xem báo cáo B1.2 để biết giới hạn PRAGMA integrity_check.
 
 Đọc [bảng đối chiếu yêu cầu và tiến độ](cloudflare/REQUIREMENTS_TRACEABILITY.md), [hướng dẫn chạy/triển khai](cloudflare/README.md), [báo cáo Chặng A](qa/CLOUDFLARE_WORKERS_STAGE_A.md). Kế hoạch/prompt cũ được lưu tại [snapshot trước đồng bộ](archive/2026-11-06-before-master-sync/README.md).
 
@@ -19,13 +21,13 @@ Cập nhật 06/11/2026 theo [master prompt đã hợp nhất](cloudflare/MASTER
 | Thành phần | Công nghệ đích | Hiện tại |
 |---|---|---|
 | Frontend | React + TypeScript + Vite + Ant Design + Recharts; Design System sẵn có | UI hiện có được giữ nguyên |
-| Hosting | Cloudflare Workers Static Assets, SPA routing | Cấu hình và local đã có; chưa deploy Cloud |
+| Hosting | Cloudflare Workers Static Assets, SPA routing | A/Preview đã nghiệm thu theo xác nhận chủ sản phẩm |
 | API | Cloudflare Worker API, `worker/index.ts`, TypeScript tương thích Workers Runtime | Health JSON đã có; chưa Auth/middleware quyền hoặc API nghiệp vụ |
 | Client | `src/services/api.ts`, gọi cùng origin `/api` | Đã tạo; chưa thay DemoProvider |
-| Database | Cloudflare D1, SQL tương thích SQLite, migration có version | Chưa schema/migration D1 hoặc binding thật |
+| Database | Cloudflare D1, SQL tương thích SQLite, migration có version | B1.2: 5 migrations/20 bảng trên D1 TEST; Preview binding chỉ chuẩn bị local, Production không DB |
 | File | R2 private; metadata/tenant scope trong D1; tải qua API có quyền | Chỉ contract/mẫu binding, chưa bucket/upload/download thật |
 | Danh tính | Ưu tiên đánh giá Supabase Auth nếu an toàn và ít phát sinh | Chưa SDK/session/JWT thật; không tự lưu mật khẩu |
-| Phân quyền | Worker API + membership/role/tenant + composite FK trong D1 | Chưa triển khai; middleware A chỉ mở health |
+| Phân quyền | Worker API + membership/role/tenant + composite FK trong D1 | B1 có guard/DAL nội bộ và test A/B; chưa verifier thật/endpoint, router A chỉ health |
 
 Không dùng Supabase PostgreSQL/Storage/RLS làm backend đích. Không dùng migration PostgreSQL trực tiếp cho D1. Supabase chỉ là lựa chọn dịch vụ danh tính ở B; không mặc định dùng service_role để bỏ qua kiểm tra quyền.
 
@@ -42,7 +44,7 @@ flowchart LR
 
 Sơ đồ là kiến trúc đích. Hiện chỉ health chạy qua API; các khối Auth/D1/R2/tenant guard chưa được nối.
 
-## 3. Thiết kế đa Tenant phải hoàn thiện ở B
+## 3. Thiết kế đa tenant B1 và phần quyền B2
 
 Mỗi cơ quan có tenant riêng và cơ cấu/đơn vị/lãnh đạo/nguồn/tài khoản/nhiệm vụ/văn bản/báo cáo/file riêng. Một identity có thể thuộc nhiều tenant; người dùng phải chuyển ngữ cảnh rõ ràng. Thay tenant phải tải lại quyền, xóa cache/selection không còn phù hợp, không trộn dữ liệu hai cơ quan.
 
@@ -55,6 +57,7 @@ Mỗi cơ quan có tenant riêng và cơ cấu/đơn vị/lãnh đạo/nguồn/t
 | `profiles` | Hồ sơ identity dùng chung; định danh từ provider/issuer/subject, không password |
 | `tenant_memberships` | Membership của profile trong tenant, active/locked; unique cặp tenant/user |
 | `tenant_member_roles` | Các role được cấp cho membership, audit người cấp/thu hồi |
+| `platform_admins` | Quản trị nền tảng độc lập, không tự cấp quyền dữ liệu tenant |
 | `user_unit_assignments` | Liên kết membership với đơn vị thuộc chính tenant đó |
 | `leaders`, `task_sources` | Lãnh đạo/nguồn theo tenant, mã ổn định |
 | `source_documents` | Văn bản căn cứ hoặc mô tả cuộc họp; một hồ sơ có nhiều nhiệm vụ |
@@ -68,7 +71,7 @@ Mỗi cơ quan có tenant riêng và cơ cấu/đơn vị/lãnh đạo/nguồn/t
 | `audit_logs` | Actor, tenant/scope, hành động, trước/sau, lý do, thời điểm; không xóa trái phép |
 | `import_jobs`, `import_job_rows` | File/preview/errors/lựa chọn trùng và kết quả từng dòng trong đúng tenant |
 
-Bổ sung cơ chế role nền tảng/Bootstrap Super Admin và idempotency theo thiết kế B; không dùng role tenant để suy ra quyền Super Admin. `profiles` là identity dùng chung, còn dữ liệu/quyền của cơ quan thuộc membership/tenant; quyết định schema chi tiết phải được review trước khi tạo D1 migration.
+Bổ sung cơ chế role nền tảng/Bootstrap Super Admin và idempotency theo thiết kế B; không dùng role tenant để suy ra quyền Super Admin. `profiles` là identity dùng chung, còn dữ liệu/quyền của cơ quan thuộc membership/tenant; schema B1 đã tạo và kiểm thử local, phải được duyệt trước remote migration.
 
 Mọi bảng nghiệp vụ tenant-scoped có `tenant_id`; dùng unique/index theo tenant, composite FK như `(tenant_id, source_document_id) -> source_documents(tenant_id,id)` và tương tự cho task/đơn vị/văn bản/attachment/membership. Không chỉ lọc tenant ở UI hoặc chỉ kiểm tra một FK `id`. Đơn vị cha cũng phải cùng tenant. Profile toàn cục không được chứa task/file hoặc quyền nội bộ của một tenant.
 
@@ -90,7 +93,7 @@ Không tin role DEMO, `user_metadata`, tenant_id từ body hoặc việc ẩn n�
 | Office Confirmer | Xác nhận hoàn thành; ghi quyết định gia hạn có căn cứ thẩm quyền | Lưu actor và snapshot; không phải cơ quan tự ban hành quyết định hành chính |
 | Leader Viewer | Xem dashboard/task/báo cáo/tài liệu được phép | Không sửa dữ liệu |
 
-Một người có thể có nhiều role theo từng tenant. Việc kế thừa capability giữa Tenant Admin/Editor/Confirmer phải chốt minh bạch ở B; không mang ma trận ADMIN đơn cơ quan của Supabase cũ sang rồi mặc định mở mọi dữ liệu. Phân công đơn vị không tự tạo quyền ghi.
+Một người có thể có nhiều role theo từng tenant. B1 đã chốt Tenant Admin chỉ quản trị, Editor không tự confirm, Confirmer không tự tasks:write; muốn kết hợp phải cấp thêm role rõ ràng; không mang ma trận ADMIN đơn cơ quan của Supabase cũ sang rồi mặc định mở mọi dữ liệu. Phân công đơn vị không tự tạo quyền ghi.
 
 Nếu chọn Supabase Auth: frontend dùng SDK danh tính, backend xác minh token/issuer/audience/expiry và cơ chế khóa/thu hồi phù hợp; quyền tenant đọc từ D1. Tạo user/invite/reset qua API quản trị identity phía server và kiểm tra role trước; secret chỉ ở server, không vào `VITE_*`, browser, logs hoặc Git. Bootstrap Super Admin riêng, có xác minh người vận hành và audit; không tự cấp cho user đăng ký đầu tiên.
 
@@ -119,16 +122,16 @@ Yêu cầu mới nhất [Chặng A Worker](cloudflare/STAGE_A_WORKERS_REQUEST.md
 
 Health chỉ trả `{"status":"ok","service":"theo-doi-nhiem-vu-api"}`, JSON UTF-8/no-store. API chưa có trả 404 JSON, method health không hỗ trợ trả 405. Health không phải kiểm tra readiness D1/R2/Auth. Client service đã chuẩn bị; DemoProvider/login và nghiệp vụ vẫn mô phỏng.
 
-Local `npm run dev:worker`, địa chỉ 127.0.0.1:8788, chạy workerd thật và override APP_ENV=development. Theo A.2 dùng Worker Previews với khối `previews` thật: APP_ENV=preview, D1/R2 rỗng; không named env.preview hoặc Version URLs làm thay thế. Wrangler 4.157.0 đáp ứng >=4.135.0; `npm run preview:worker` gọi `wrangler preview --ignore-base-config`. Máy chưa đăng nhập và Builds chưa xác minh nên chưa push/deploy. D1/R2/Auth thật chưa có; không dùng tài nguyên Production cho test.
+Local UI vẫn dùng `npm run dev:worker` tại 8788, không nối DB. B1 dùng wrangler.d1-local.jsonc với UUID giả/remote:false, migrations --local và state riêng; root wrangler.jsonc không thay đổi, previews DB vẫn rỗng. TEST binding/tooling chỉ là mẫu chưa active. [Thiết kế B1](cloudflare/D1_B1.md) hướng dẫn tạo TEST và chỉ apply remote sau duyệt riêng.
 
-Vercel giữ nguyên. Không deploy/push trong lượt này. Nhánh A.2 `feature/cloudflare-worker-stage-a` chỉ được push sau khi xác nhận repo/branch control/Preview command an toàn. Preview dùng `wrangler preview`, không deploy/versions upload; tên parent Worker vẫn `theodoinhiemvu`. Chi tiết tại [hướng dẫn A.2](cloudflare/WORKER_PREVIEWS_A2.md).
+A.3 đã push nhánh feature/cloudflare-preview-clean và Build thành công; chủ sản phẩm xác nhận health Preview JSON đã đạt. B1 là nhánh local feature/d1-multitenant-b1 từ nhánh đó, không push/deploy, không thay Vercel/Production. B2 đăng nhập và mutation API cần phê duyệt tiếp theo.
 
 ## 8. Lộ trình A–E và tiêu chí nghiệm thu
 
 | Chặng | Bàn giao đầy đủ | Điều kiện nghiệm thu | Hiện tại |
 |---|---|---|---|
-| A — Hạ tầng | Kiểm tra local/GitHub; ưu tiên local; ZIP/branch/checkpoint; công cụ project; Workers Static Assets/Worker API; health; service client; UI Mock nguyên vẹn | Build/typecheck, API và frontend chung origin local; test cũ đạt; báo file/URL/hướng dẫn Dashboard | Đã làm local, chờ chủ sản phẩm nghiệm thu |
-| B — Database/quyền | D1 schema đa tenant, versioned SQLite migration/seed Hương Đô; identity/JWT; membership/role; test tenant A/B; bootstrap Super Admin | Local DB tồn tại qua restart; composite FK/permission chặn truy cập chéo; không tự nâng quyền; không tự cấp data access cho Super Admin | Chưa triển khai; chỉ bắt đầu sau duyệt A |
+| A — Hạ tầng | Kiểm tra local/GitHub; ưu tiên local; ZIP/branch/checkpoint; công cụ project; Workers Static Assets/Worker API; health; service client; UI Mock nguyên vẹn | Build/typecheck, API và frontend chung origin local; test cũ đạt; báo file/URL/hướng dẫn Dashboard | A/Preview đã nghiệm thu |
+| B1/B2 — Database/quyền | D1 schema đa tenant, versioned SQLite migration/seed Hương Đô; identity/JWT; membership/role; test tenant A/B; bootstrap Super Admin | Local DB tồn tại qua restart; composite FK/permission chặn truy cập chéo; không tự nâng quyền; không tự cấp data access cho Super Admin | B1 local đã đạt; B2 Auth/bootstrap chưa triển khai, remote D1 chờ duyệt |
 | C — Quản trị | Tenant TreeView/cơ cấu; tài khoản, role, invite/reset/revoke/lock; audit quản trị đúng phạm vi | API và UI cùng capability, không sửa tenant khác, thu hồi quyền có hiệu lực, không lộ password/secret, không Super Admin đọc data nội bộ mặc định | Chưa triển khai |
 | D — Nghiệp vụ | CRUD thật; tiến độ/hoàn thành; KPI/report; đôn đốc/gia hạn; import/export Excel; R2 file | V1.3 từ đầu đến cuối qua API; backend thực thi hạn/snapshot; transaction/version/retry; số liệu khớp; file có quyền | Chưa triển khai; UI hiện chỉ mô phỏng |
 | E — QA/triển khai | Test tự động, xuyên tenant, backup/restore D1+R2; Worker Preview; dữ liệu test; Production sau duyệt | Kiểm thử và khôi phục DB lẫn file; build/test đạt; không blocker; PO duyệt riêng Production | Chưa triển khai |
@@ -142,5 +145,5 @@ Chặng A đã có 28 unit tests và 9 browser tests trong [báo cáo A](qa/CLOU
 - `prompts/01_DUNG_GIAO_DIEN_MAU.md`: bảo toàn/kiểm tra UI sẵn có; `01A_CLOUDFLARE_WORKERS_HA_TANG.md`: Chặng A.
 - `prompts/02_TAO_DATABASE_API_DANG_NHAP.md`: B D1/Auth/multi-tenant; `02C_QUAN_TRI_TENANT.md`: C.
 - `prompts/03_IMPORT_DON_DOC_GIA_HAN.md`: toàn bộ D; `04_KIEM_THU_NGHIEM_THU.md`: E.
-- Chưa duyệt A thì không chạy prompt B như một lệnh thực thi. Không coi nhận xét tài liệu còn thiếu là phê duyệt làm B–E.
+- B1 local đã được duyệt và hoàn tất; dừng trước remote migration. Không tự mở Auth B2, C hoặc D/E từ kết quả B1. Thiết kế/test giả verifier không phải xác thực thật.
 - Các file Supabase PostgreSQL cũ giữ nguyên làm lịch sử/tham khảo nghiệp vụ; không apply vào D1, không tự cài SQL Server/.NET và không sử dụng bảng/quyền đơn cơ quan cũ làm backend đích.

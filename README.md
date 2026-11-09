@@ -1,10 +1,12 @@
 # Theo dõi nhiệm vụ — UBND xã Hương Đô
 
-**A.2:** Đã chuẩn bị Worker Previews thực sự trên nhánh `feature/cloudflare-worker-stage-a`; chưa push/deploy khi Dashboard Builds chưa được xác nhận. [Hướng dẫn Dashboard và Preview](docs/cloudflare/WORKER_PREVIEWS_A2.md).
+> **B1.2, 09/11/2026:** D1 TEST `theodoinhiemvu-d1-test` (UUID `649fd0db-7fd3-4551-bfac-f3fccc408373`) đã áp dụng đủ 5 migration. Có 20 bảng ứng dụng, đúng seed 11/3/3; không profile/task/tenant A/B. FK check và quick_check đạt; integrity_check bị D1 từ chối SQLITE_AUTH, không đánh dấu đạt. Chỉ chuẩn bị binding Preview local, chưa push/deploy/Auth/R2. [Báo cáo B1.2 và hướng dẫn Preview](docs/qa/D1_B1_2.md). Các trạng thái B1/A.2 cũ bên dưới là lịch sử trước B1.2.
 
-**Chặng A — đã tích hợp Cloudflare Workers Static Assets và Worker API local.** Giữ UI MOCK React + TypeScript + Vite + Ant Design + Recharts, Be Vietnam Pro và Lucide. Có API hạ tầng `/api/health`; login/nghiệp vụ vẫn DEMO trong bộ nhớ, chưa có Auth thật, D1, R2 hoặc phân quyền đa Tenant. [Hướng dẫn local/Cloudflare Preview](docs/cloudflare/README.md), [báo cáo kiểm tra](docs/qa/CLOUDFLARE_WORKERS_STAGE_A.md).
+**B1, 09/11/2026:** A/Preview đã được chủ sản phẩm nghiệm thu. Nền tảng D1 đa tenant đã kiểm thử local trên nhánh `feature/d1-multitenant-b1`; chưa migration Cloud, Auth thật hoặc nối UI vào DB. [Thiết kế và lệnh local](docs/cloudflare/D1_B1.md), [báo cáo B1](docs/qa/D1_B1.md).
 
-Yêu cầu sản phẩm đầy đủ: [master Cloudflare](docs/cloudflare/MASTER_PROMPT.md), [kế hoạch hiện hành](docs/IMPLEMENTATION_PLAN.md), [đối chiếu từng yêu cầu với tiến độ](docs/cloudflare/REQUIREMENTS_TRACEABILITY.md). Lộ trình A–E gồm cả multi-tenant, Super Admin/Tenant Admin, TreeView/tài khoản, D1/R2/Auth và nghiệp vụ thật; hiện chưa triển khai B–E.
+**Chặng A — đã tích hợp Cloudflare Workers Static Assets và Worker API local.** Giữ UI MOCK React + TypeScript + Vite + Ant Design + Recharts, Be Vietnam Pro và Lucide. Có API hạ tầng `/api/health`; login/nghiệp vụ vẫn DEMO trong bộ nhớ, chưa có Auth thật, D1 Cloud, R2 hoặc phân quyền endpoint đa tenant thật; D1 B1 local dùng cấu hình riêng. [Hướng dẫn local/Cloudflare Preview](docs/cloudflare/README.md), [báo cáo kiểm tra](docs/qa/CLOUDFLARE_WORKERS_STAGE_A.md).
+
+Yêu cầu sản phẩm đầy đủ: [master Cloudflare](docs/cloudflare/MASTER_PROMPT.md), [kế hoạch hiện hành](docs/IMPLEMENTATION_PLAN.md), [đối chiếu từng yêu cầu với tiến độ](docs/cloudflare/REQUIREMENTS_TRACEABILITY.md). Lộ trình A–E gồm cả multi-tenant, Super Admin/Tenant Admin, TreeView/tài khoản, D1/R2/Auth và nghiệp vụ thật; B1 đã kiểm thử local; B2 và C–E chưa triển khai.
 
 Xem [báo cáo nâng cấp và ảnh mới](docs/qa/UI_UX_UPGRADE.md). Phong cảnh nền là ảnh minh họa được tạo, không phải ảnh xác thực địa điểm/trụ sở xã; [prompt và nguồn gốc](public/assets/README.md).
 
@@ -75,4 +77,4 @@ npm run test:ui:worker
 
 Các tài liệu nghiệp vụ gốc trong `docs/product` được giữ nguyên; yêu cầu Cloudflare mới nhất thay phần công nghệ trong kế hoạch cũ. Mã UI tự viết, chỉ tham khảo ý tưởng bố cục `ntuan161297-eng/VanPhongSo`. Không thay Vercel Production trong lượt tích hợp này.
 
-**Chưa bắt đầu Chặng B (D1 đa Tenant/Auth thật). Chờ chủ sản phẩm nghiệm thu Chặng A; không tự deploy hoặc chạy migration remote.**
+**B1 đã có migration/D1 local; chờ chủ sản phẩm duyệt trước migration D1 TEST. B2/Auth và C–E chưa triển khai. Không tự push/deploy hoặc chạy migration remote.**

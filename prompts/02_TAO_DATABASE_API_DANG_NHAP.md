@@ -1,5 +1,7 @@
 # CHẶNG B — D1 MULTI-TENANT, DANH TÍNH VÀ PHÂN QUYỀN
 
+> B1 hiện đã hoàn tất nền D1 local trên feature/d1-multitenant-b1: docs/cloudflare/D1_B1.md. Không tự chạy toàn bộ prompt B này: remote migration và B2 Auth cần phê duyệt riêng. Giữ UI/router A; chưa bootstrap Super Admin hoặc endpoint công khai.
+
 Chỉ triển khai sau khi chủ sản phẩm duyệt A và giao B. Đọc master Cloudflare, kế hoạch, bảng truy vết, PRD/test V1.3 và CSV/Excel. Kiểm tra branch/local/checkpoint; giữ nguyên frontend. Không tự đọc prompt này như phê duyệt B.
 
 Dùng Cloudflare D1 và SQL tương thích SQLite, migration có version riêng tại `cloudflare/d1/migrations`. Không apply `supabase/migrations`, không dùng PostgreSQL RLS/RPC/SECURITY DEFINER, không quay lại .NET/SQL Server. Bước remote apply luôn cần được cho phép riêng; test/seed local phải phân biệt với Cloud.

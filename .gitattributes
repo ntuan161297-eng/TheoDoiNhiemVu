@@ -1,0 +1,2 @@
+# Keep reviewed migration bytes stable across Windows/Linux checkouts.
+cloudflare/d1/migrations/*.sql text eol=lf

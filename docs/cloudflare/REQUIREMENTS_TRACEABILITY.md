@@ -1,5 +1,9 @@
 # ĐỐI CHIẾU TOÀN BỘ MASTER PROMPT CLOUDFLARE
 
+> **B1.2, 09/11/2026:** D1 TEST `theodoinhiemvu-d1-test` (UUID `649fd0db-7fd3-4551-bfac-f3fccc408373`) đã áp dụng đủ 5 migration. Có 20 bảng ứng dụng, đúng seed 11/3/3; không profile/task/tenant A/B. FK check và quick_check đạt; integrity_check bị D1 từ chối SQLITE_AUTH, không đánh dấu đạt. Chỉ chuẩn bị binding Preview local, chưa push/deploy/Auth/R2. [Báo cáo B1.2 và hướng dẫn Preview](../qa/D1_B1_2.md). Các trạng thái B1/A.2 cũ bên dưới là lịch sử trước B1.2.
+
+> **Trạng thái mới nhất 09/11/2026:** Bảng A/A.2 bên dưới là snapshot lịch sử. A/Preview đã nghiệm thu; B1 local đã triển khai theo phê duyệt mới, chi tiết đối chiếu ở cuối file và [thiết kế B1](D1_B1.md). B2–E chưa triển khai.
+
 Ngày đồng bộ: 06/11/2026. Nguồn là [master đã hợp nhất](MASTER_PROMPT.md) đủ 10 mục và [yêu cầu Worker mới nhất](STAGE_A_WORKERS_REQUEST.md), thay phần Pages trước đây; [kế hoạch hiện hành](../IMPLEMENTATION_PLAN.md) đã thay nội dung cũ. Tài liệu hóa một yêu cầu **không có nghĩa đã lập trình yêu cầu đó**.
 
 Trạng thái: **Đã làm A** = có mã/bằng chứng kiểm thử local; **Giữ UI mock** = hiện có và được bảo toàn, chưa dữ liệu thật; **Chuẩn bị** = có contract/example/service nhưng chưa kết nối dịch vụ; **Chưa làm B/C/D/E** = đã đưa vào kế hoạch, chưa triển khai và chưa được phép tự bắt đầu.
@@ -101,3 +105,16 @@ Lượt Chặng A Worker này có sửa code/config/service/test và đồng b�
 ## Bổ sung A.2 — Worker Previews
 
 Wrangler 4.157.0 đã hỗ trợ Previews; thay env.preview bằng previews thật, command wrangler preview --ignore-base-config; chưa tài nguyên/secrets. Nhánh feature/cloudflare-worker-stage-a, kiểm tra và commit local. Chưa đăng nhập Cloudflare hoặc xác minh Dashboard Builds nên chưa push, chưa URL và chưa test Cloud Preview. [Hướng dẫn](WORKER_PREVIEWS_A2.md), [báo cáo A.2](../qa/CLOUDFLARE_WORKER_PREVIEWS_A2.md). Không đánh dấu A.2 hoàn tất từ kết quả local.
+
+## B1 — Phê duyệt mới, đã kiểm thử D1 local
+
+| Yêu cầu | Bằng chứng B1 | Chưa làm |
+|---|---|---|
+| Database SQLite đa tenant | 5 migrations/20 bảng; FK ghép/immutability/STRICT; không PostgreSQL | Cloud migration |
+| Seed Hương Đô | Đối chiếu đúng CSV 11/3/3; profiles/tasks bằng 0 trong DB danh mục | Auth accounts/dữ liệu thật |
+| TreeView/cô lập A/B | Parent FK/recursive trigger; 30 integration D1/workerd, batch rollback/persistence | TreeView UI/API C |
+| Role và platform riêng | Guard nội bộ + capability/DAL, 34 unit đạt, thiếu verifier từ chối; Super Admin không đọc task mặc định | JWT/Auth B2 và public CRUD |
+| Bảo toàn A | 9 UI/API regression đạt; root Worker/config/UI giữ nguyên | UI dữ liệu thật |
+| TEST Preview riêng | Hai mẫu config, DB giả chỉ local, hướng dẫn Dashboard | DB TEST Cloud chưa tạo/gắn/migrate |
+
+[Báo cáo B1](../qa/D1_B1.md). Dừng trước remote migration và B2/C; không coi test verifier fixture là Auth thật.

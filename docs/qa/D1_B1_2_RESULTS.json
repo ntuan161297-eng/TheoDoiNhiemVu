@@ -1,0 +1,402 @@
+{
+  "date": "2026-11-09",
+  "stage": "B1.2",
+  "branch": "feature/d1-multitenant-b1",
+  "status": "initialized-and-verified-with-D1-pragma-limitation",
+  "target": {
+    "binding": "DB",
+    "database_name": "theodoinhiemvu-d1-test",
+    "database_id": "649fd0db-7fd3-4551-bfac-f3fccc408373",
+    "migrations_dir": "cloudflare/d1/migrations"
+  },
+  "preflight": {
+    "target": {
+      "binding": "DB",
+      "database_name": "theodoinhiemvu-d1-test",
+      "database_id": "649fd0db-7fd3-4551-bfac-f3fccc408373",
+      "migrations_dir": "cloudflare/d1/migrations"
+    },
+    "verifiedAt": "2026-11-09T06:37:56.089Z",
+    "info": {
+      "uuid": "649fd0db-7fd3-4551-bfac-f3fccc408373",
+      "name": "theodoinhiemvu-d1-test",
+      "created_at": "2026-11-09T04:31:31.393Z",
+      "num_tables": 0,
+      "running_in_region": "APAC",
+      "read_replication": {
+        "mode": "disabled"
+      },
+      "jurisdiction": null,
+      "database_size": 12288,
+      "read_queries_24h": 2,
+      "write_queries_24h": 0,
+      "rows_read_24h": 5,
+      "rows_written_24h": 0
+    },
+    "applicationObjects": [],
+    "quickCheck": [
+      {
+        "quick_check": "ok"
+      }
+    ],
+    "migrations": [
+      {
+        "name": "0001_tenant_identity_and_administration.sql",
+        "sha256": "b57a96f878f55b324a17220658febc68c184d9fd26b4b66454c02ba2407cb3b7"
+      },
+      {
+        "name": "0002_business_foundation.sql",
+        "sha256": "b4a49fe50ee56ace392425d8bbb86102853d75c98e7239a744b537192cb90e36"
+      },
+      {
+        "name": "0003_integrity_guards.sql",
+        "sha256": "1e9468bfc6de108c7828826fed6778df1c4dfbd3199ecc2a7e6aa245ccc0bb79"
+      },
+      {
+        "name": "0004_huong_do_catalogs.sql",
+        "sha256": "5249f7ba69cfa4962f8bfdf00896308a46b310249b71e09ecbdceeb651d72999"
+      },
+      {
+        "name": "0005_reject_identity_replacement.sql",
+        "sha256": "73438fdff4aef6da2307e97efc1f75828eabeb703669706ffd2862c479165e7f"
+      }
+    ]
+  },
+  "postMigration": {
+    "target": {
+      "binding": "DB",
+      "database_name": "theodoinhiemvu-d1-test",
+      "database_id": "649fd0db-7fd3-4551-bfac-f3fccc408373",
+      "migrations_dir": "cloudflare/d1/migrations"
+    },
+    "inspectedAt": "2026-11-09T06:49:04.782Z",
+    "info": {
+      "uuid": "649fd0db-7fd3-4551-bfac-f3fccc408373",
+      "name": "theodoinhiemvu-d1-test",
+      "created_at": "2026-11-09T04:31:31.393Z",
+      "num_tables": 21,
+      "running_in_region": "APAC",
+      "read_replication": {
+        "mode": "disabled"
+      },
+      "jurisdiction": null,
+      "database_size": 458752,
+      "read_queries_24h": 68,
+      "write_queries_24h": 77,
+      "rows_read_24h": 375,
+      "rows_written_24h": 283
+    },
+    "applicationTables": [
+      "attachments",
+      "audit_logs",
+      "expedite_document_tasks",
+      "expedite_documents",
+      "extension_requests",
+      "import_job_rows",
+      "import_jobs",
+      "leaders",
+      "organization_units",
+      "platform_admins",
+      "profiles",
+      "source_documents",
+      "task_coordinating_units",
+      "task_progress_updates",
+      "task_sources",
+      "tasks",
+      "tenant_member_roles",
+      "tenant_memberships",
+      "tenants",
+      "user_unit_assignments"
+    ],
+    "migrationHistory": [
+      {
+        "name": "0001_tenant_identity_and_administration.sql"
+      },
+      {
+        "name": "0002_business_foundation.sql"
+      },
+      {
+        "name": "0003_integrity_guards.sql"
+      },
+      {
+        "name": "0004_huong_do_catalogs.sql"
+      },
+      {
+        "name": "0005_reject_identity_replacement.sql"
+      }
+    ],
+    "counts": [
+      {
+        "table_name": "attachments",
+        "n": 0
+      },
+      {
+        "table_name": "audit_logs",
+        "n": 1
+      },
+      {
+        "table_name": "expedite_document_tasks",
+        "n": 0
+      },
+      {
+        "table_name": "expedite_documents",
+        "n": 0
+      },
+      {
+        "table_name": "extension_requests",
+        "n": 0
+      },
+      {
+        "table_name": "import_job_rows",
+        "n": 0
+      },
+      {
+        "table_name": "import_jobs",
+        "n": 0
+      },
+      {
+        "table_name": "leaders",
+        "n": 3
+      },
+      {
+        "table_name": "organization_units",
+        "n": 11
+      },
+      {
+        "table_name": "platform_admins",
+        "n": 0
+      },
+      {
+        "table_name": "profiles",
+        "n": 0
+      },
+      {
+        "table_name": "source_documents",
+        "n": 0
+      },
+      {
+        "table_name": "task_coordinating_units",
+        "n": 0
+      },
+      {
+        "table_name": "task_progress_updates",
+        "n": 0
+      },
+      {
+        "table_name": "task_sources",
+        "n": 3
+      },
+      {
+        "table_name": "tasks",
+        "n": 0
+      },
+      {
+        "table_name": "tenant_member_roles",
+        "n": 0
+      },
+      {
+        "table_name": "tenant_memberships",
+        "n": 0
+      },
+      {
+        "table_name": "tenants",
+        "n": 1
+      },
+      {
+        "table_name": "user_unit_assignments",
+        "n": 0
+      }
+    ],
+    "tenants": [
+      {
+        "id": "tenant-huong-do",
+        "code": "HUONG_DO",
+        "name": "UBND xã Hương Đô"
+      }
+    ],
+    "catalogChecks": [
+      {
+        "table": "organization_units",
+        "records": 11,
+        "matchesOfficialCsv": true
+      },
+      {
+        "table": "leaders",
+        "records": 3,
+        "matchesOfficialCsv": true
+      },
+      {
+        "table": "task_sources",
+        "records": 3,
+        "matchesOfficialCsv": true
+      }
+    ],
+    "triggerCount": 63,
+    "explicitIndexCount": 27,
+    "foreignKeyCheck": [],
+    "quickCheck": [
+      {
+        "quick_check": "ok"
+      }
+    ],
+    "integrityCheck": {
+      "status": "not-completed",
+      "error": "{\n  \"error\": {\n    \"text\": \"A request to the Cloudflare API (/accounts/a19a4cb58d540a71c4924dab2472405e/d1/database/649fd0db-7fd3-4551-bfac-f3fccc408373/query) failed.\",\n    \"notes\": [\n      {\n        \"text\": \"not authorized: SQLITE_AUTH [code: 7500]\"\n      }\n    ],\n    \"kind\": \"error\",\n    \"name\": \"APIError\",\n    \"code\": 7500,\n    \"accountTag\": \"a19a4cb58d540a71c4924dab2472405e\"\n  }\n}"
+    },
+    "noTasksOrProfilesOrTenantAB": true
+  },
+  "migrationHashes": [
+    {
+      "file": "cloudflare/d1/migrations/0001_tenant_identity_and_administration.sql",
+      "sha256": "b57a96f878f55b324a17220658febc68c184d9fd26b4b66454c02ba2407cb3b7"
+    },
+    {
+      "file": "cloudflare/d1/migrations/0002_business_foundation.sql",
+      "sha256": "b4a49fe50ee56ace392425d8bbb86102853d75c98e7239a744b537192cb90e36"
+    },
+    {
+      "file": "cloudflare/d1/migrations/0003_integrity_guards.sql",
+      "sha256": "1e9468bfc6de108c7828826fed6778df1c4dfbd3199ecc2a7e6aa245ccc0bb79"
+    },
+    {
+      "file": "cloudflare/d1/migrations/0004_huong_do_catalogs.sql",
+      "sha256": "5249f7ba69cfa4962f8bfdf00896308a46b310249b71e09ecbdceeb651d72999"
+    },
+    {
+      "file": "cloudflare/d1/migrations/0005_reject_identity_replacement.sql",
+      "sha256": "73438fdff4aef6da2307e97efc1f75828eabeb703669706ffd2862c479165e7f"
+    }
+  ],
+  "checks": {
+    "build": "passed",
+    "unitTestsPassed": 40,
+    "api": {
+      "origin": "http://127.0.0.1:8788",
+      "health": {
+        "status": 200,
+        "contentType": "application/json; charset=utf-8",
+        "cacheControl": "no-store",
+        "body": {
+          "status": "ok",
+          "service": "theo-doi-nhiem-vu-api"
+        }
+      },
+      "businessRoute": {
+        "status": 404,
+        "body": {
+          "ok": false,
+          "error": {
+            "code": "API_NOT_FOUND",
+            "message": "API chưa được triển khai trong Chặng A."
+          },
+          "requestId": "5cb5dc29-9b75-4ebd-9d12-1df5dfe807f0"
+        }
+      }
+    },
+    "productionTopLevelConfigUnchanged": true,
+    "protectedFilesChecked": 45,
+    "protectedChanges": [],
+    "newBusinessEndpoints": false
+  },
+  "integrityCheckPassed": false,
+  "previewBinding": "prepared-locally-not-deployed",
+  "productionDatabaseTouched": false,
+  "workerDeployed": false,
+  "codePushed": false,
+  "changesSinceB1": [
+    {
+      "status": "ignored-local-config",
+      "file": "wrangler.d1-test.jsonc"
+    },
+    {
+      "status": "modified",
+      "file": "README.md"
+    },
+    {
+      "status": "modified",
+      "file": "README_BAT_DAU.md"
+    },
+    {
+      "status": "modified",
+      "file": "docs/IMPLEMENTATION_PLAN.md"
+    },
+    {
+      "status": "modified",
+      "file": "docs/cloudflare/D1_B1.md"
+    },
+    {
+      "status": "modified",
+      "file": "docs/cloudflare/README.md"
+    },
+    {
+      "status": "modified",
+      "file": "docs/cloudflare/REQUIREMENTS_TRACEABILITY.md"
+    },
+    {
+      "status": "modified",
+      "file": "docs/cloudflare/wrangler.d1-test.bindings.example.jsonc"
+    },
+    {
+      "status": "modified",
+      "file": "docs/product/00_DOC_TRUOC.md"
+    },
+    {
+      "status": "modified",
+      "file": "docs/product/00_START_HERE.md"
+    },
+    {
+      "status": "added",
+      "file": "docs/qa/D1_B1_2.md"
+    },
+    {
+      "status": "modified",
+      "file": "scripts/check-worker-preview.mjs"
+    },
+    {
+      "status": "added",
+      "file": "scripts/d1-test-remote.mjs"
+    },
+    {
+      "status": "added",
+      "file": "scripts/d1-test-target.mjs"
+    },
+    {
+      "status": "added",
+      "file": "tests/worker/d1-test-target.test.ts"
+    },
+    {
+      "status": "modified",
+      "file": "wrangler.d1-test.example.jsonc"
+    },
+    {
+      "status": "modified",
+      "file": "wrangler.jsonc"
+    },
+    {
+      "status": "added",
+      "file": "docs/qa/D1_B1_2_RESULTS.json"
+    }
+  ],
+  "backup": {
+    "path": "backups\\before-d1-b1-2-20261109-123733.zip",
+    "sha256": "ca83a96c9ec4c67c8528cc37ab8c8d5520d123fbb52eeb8b220e4a8221509812"
+  },
+  "verificationSql": {
+    "schema": "SELECT type,name FROM sqlite_schema WHERE type IN ('table','view','trigger','index') AND name NOT GLOB 'sqlite_*' AND name NOT GLOB '_cf_*' ORDER BY type,name;",
+    "migrationHistory": "SELECT name FROM d1_migrations ORDER BY id;",
+    "counts": "SELECT (SELECT COUNT(*) FROM attachments) AS \"attachments\",(SELECT COUNT(*) FROM audit_logs) AS \"audit_logs\",(SELECT COUNT(*) FROM expedite_document_tasks) AS \"expedite_document_tasks\",(SELECT COUNT(*) FROM expedite_documents) AS \"expedite_documents\",(SELECT COUNT(*) FROM extension_requests) AS \"extension_requests\",(SELECT COUNT(*) FROM import_job_rows) AS \"import_job_rows\",(SELECT COUNT(*) FROM import_jobs) AS \"import_jobs\",(SELECT COUNT(*) FROM leaders) AS \"leaders\",(SELECT COUNT(*) FROM organization_units) AS \"organization_units\",(SELECT COUNT(*) FROM platform_admins) AS \"platform_admins\",(SELECT COUNT(*) FROM profiles) AS \"profiles\",(SELECT COUNT(*) FROM source_documents) AS \"source_documents\",(SELECT COUNT(*) FROM task_coordinating_units) AS \"task_coordinating_units\",(SELECT COUNT(*) FROM task_progress_updates) AS \"task_progress_updates\",(SELECT COUNT(*) FROM task_sources) AS \"task_sources\",(SELECT COUNT(*) FROM tasks) AS \"tasks\",(SELECT COUNT(*) FROM tenant_member_roles) AS \"tenant_member_roles\",(SELECT COUNT(*) FROM tenant_memberships) AS \"tenant_memberships\",(SELECT COUNT(*) FROM tenants) AS \"tenants\",(SELECT COUNT(*) FROM user_unit_assignments) AS \"user_unit_assignments\";",
+    "tenantScope": "SELECT id,code,name FROM tenants;",
+    "units": "SELECT code,name,unit_kind,sort_order,is_active FROM organization_units WHERE tenant_id='tenant-huong-do' ORDER BY sort_order;",
+    "leaders": "SELECT code,full_name,position_name,sort_order,is_active FROM leaders WHERE tenant_id='tenant-huong-do' ORDER BY sort_order;",
+    "sources": "SELECT code,name,sort_order,is_active FROM task_sources WHERE tenant_id='tenant-huong-do' ORDER BY sort_order;",
+    "foreignKeys": "PRAGMA foreign_key_check;",
+    "quickCheck": "PRAGMA quick_check;",
+    "integrityAttempt": "PRAGMA integrity_check; -- remote returned SQLITE_AUTH, not a pass"
+  },
+  "sensitivePatternScan": {
+    "findings": [],
+    "configIgnored": true
+  },
+  "rootProductionD1Bindings": 0,
+  "previewTestD1Bindings": 1
+}

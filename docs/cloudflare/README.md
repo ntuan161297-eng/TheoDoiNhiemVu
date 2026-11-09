@@ -1,5 +1,9 @@
 # Workers Static Assets + Worker API — Chặng A
 
+> **B1.2, 09/11/2026:** D1 TEST `theodoinhiemvu-d1-test` (UUID `649fd0db-7fd3-4551-bfac-f3fccc408373`) đã áp dụng đủ 5 migration. Có 20 bảng ứng dụng, đúng seed 11/3/3; không profile/task/tenant A/B. FK check và quick_check đạt; integrity_check bị D1 từ chối SQLITE_AUTH, không đánh dấu đạt. Chỉ chuẩn bị binding Preview local, chưa push/deploy/Auth/R2. [Báo cáo B1.2 và hướng dẫn Preview](../qa/D1_B1_2.md). Các trạng thái B1/A.2 cũ bên dưới là lịch sử trước B1.2.
+
+> **Hiện tại 09/11/2026:** A/Preview đã được chủ sản phẩm nghiệm thu. B1 D1 đa tenant đã kiểm thử local, chưa nối UI/Preview vào DB. [Thiết kế/lệnh local/D1 TEST](D1_B1.md), [báo cáo B1](../qa/D1_B1.md). Các phần A.2 dưới đây ghi lại quy trình trước B1; không tự chạy deploy/remote migration.
+
 Cập nhật 06/11/2026 theo [yêu cầu mới nhất, nguyên văn](STAGE_A_WORKERS_REQUEST.md). Dùng **Workers Static Assets + Worker API**, Wrangler truyền thống; không dùng Cloudflare Vite plugin hoặc tạo Pages Project. [Master hợp nhất](MASTER_PROMPT.md), [kế hoạch](../IMPLEMENTATION_PLAN.md), [truy vết](REQUIREMENTS_TRACEABILITY.md), [báo cáo kiểm thử](../qa/CLOUDFLARE_WORKERS_STAGE_A.md).
 
 ## Mở ứng dụng local
@@ -55,11 +59,11 @@ curl.exe -i -H "Sec-Fetch-Mode: navigate" http://127.0.0.1:8788/api/khong-ton-ta
 
 `build:worker` gọi **deploy --name theodoinhiemvu-build-check --dry-run**, chỉ bundle local, không upload/deploy. 28 unit + 9 browser tests đạt trên workerd; bao gồm direct/reload sáu UI routes, API fetch/navigation/404/405/HEAD và JS/CSS/ảnh. Toàn bộ 7 bài UI cũ giữ nguyên assertion; ảnh mới ở `.local/cloudflare/worker-qa`. Còn cảnh báo bundle Vite lớn, không chặn build.
 
-## Worker Previews A.2 — cần xác nhận Dashboard trước push
+## Lịch sử thiết lập Worker Previews A.2/A.3
 
 Theo yêu cầu A.2, dùng **Worker Previews thực sự**, không Worker riêng env.preview, không versions upload. Khối previews đã có APP_ENV=preview, D1/R2 rỗng; Wrangler 4.157.0 đáp ứng yêu cầu >=4.135.0. preview_urls không thay tính năng này.
 
-Nhánh local: **feature/cloudflare-worker-stage-a**. Máy chưa đăng nhập Cloudflare, chưa xác minh Builds; **chưa push/deploy và chưa có URL Preview**. Chỉ push nhánh feature sau xác nhận an toàn theo yêu cầu chủ sản phẩm.
+Nhánh Preview đã nghiệm thu: **feature/cloudflare-preview-clean**, base 50d6b10. B1 đang ở nhánh local **feature/d1-multitenant-b1**, không push/deploy. Dashboard A.3 được chủ sản phẩm xác nhận dùng build npm run build, Preview command npx wrangler preview; helper CLI trong repo vẫn là tùy chọn khác có ignore-base-config.
 
 Trên Dashboard: **Workers & Pages → theodoinhiemvu → Settings → Builds**:
 
@@ -81,3 +85,7 @@ Nếu còn banner **Set up Worker Previews**, xem hướng dẫn chuyển mô h�
 Sau khi account và Builds đã xác nhận an toàn, lệnh Preview local là npm run preview:worker, gọi wrangler preview --ignore-base-config. Lệnh chưa thực hiện. Cờ bỏ Base chỉ áp dụng khi tạo mới; phải kiểm tra riêng secrets/bindings nếu Preview cùng tên đã tồn tại. Không sử dụng wrangler deploy hoặc wrangler versions upload làm đường triển khai A.2.
 
 Khi có URL thực tế từ log/Cloudflare Dashboard, đặt WORKER_PREVIEW_URL và chạy npm run test:ui:preview. Cấu hình từ chối hostname Production, chạy toàn bộ 9 bài frontend/API trên Preview, không mở server local. Không dùng test local để tuyên bố Preview đạt. Dừng chờ nghiệm thu sau Preview, chưa chuyển B.
+
+## Kiểm tra D1 TEST B1.2
+
+Database TEST đã migrate, không chạy lại apply. Dùng `node scripts/d1-test-remote.mjs inspect` để đọc trạng thái với config riêng đã được ignore. `npm run check:preview` xác nhận chỉ một UUID TEST trong previews và Production bindings bằng 0. Chi tiết SQL, integrity_check bị từ chối và các bước deploy Preview sau nghiệm thu tại [báo cáo B1.2](../qa/D1_B1_2.md). Không deploy/push hoặc chạy Auth/R2 trong lượt này.

@@ -1,7 +1,8 @@
 export interface Env {
   ASSETS: Fetcher;
   APP_ENV?: string;
-  // Binding contract for Stage B onward; optional and UNBOUND in Stage A.
+  // B1.3 binds only the approved D1 TEST in isolated Worker Previews.
+  // Production stays unbound; no business endpoints before B2 authentication.
   DB?: D1Database;
   DOCUMENTS?: R2Bucket;
 }

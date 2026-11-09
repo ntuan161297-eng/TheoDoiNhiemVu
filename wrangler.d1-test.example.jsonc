@@ -1,0 +1,16 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "theodoinhiemvu-d1-test-tooling",
+  "main": "./worker/index.ts",
+  "compatibility_date": "2026-11-06",
+  "send_metrics": false,
+  "workers_dev": false,
+  // REFERENCE ONLY: copy to ignored wrangler.d1-test.jsonc AFTER approval.
+  // Only D1 TEST migration tooling; never deploy this as a Worker.
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "theodoinhiemvu-d1-test",
+    "database_id": "REPLACE_WITH_D1_TEST_UUID",
+    "migrations_dir": "cloudflare/d1/migrations"
+  }]
+}

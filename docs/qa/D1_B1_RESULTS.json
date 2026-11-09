@@ -1,0 +1,163 @@
+{
+  "date": "2026-11-09",
+  "branch": "feature/d1-multitenant-b1",
+  "baseCommit": "50d6b10fc842a95ad7f511de2df9792636d514a4",
+  "scope": "LOCAL B1 only; no push, deploy or remote migrations",
+  "migrations": [
+    {
+      "file": "cloudflare/d1/migrations/0001_tenant_identity_and_administration.sql",
+      "sha256": "b57a96f878f55b324a17220658febc68c184d9fd26b4b66454c02ba2407cb3b7"
+    },
+    {
+      "file": "cloudflare/d1/migrations/0002_business_foundation.sql",
+      "sha256": "b4a49fe50ee56ace392425d8bbb86102853d75c98e7239a744b537192cb90e36"
+    },
+    {
+      "file": "cloudflare/d1/migrations/0003_integrity_guards.sql",
+      "sha256": "1e9468bfc6de108c7828826fed6778df1c4dfbd3199ecc2a7e6aa245ccc0bb79"
+    },
+    {
+      "file": "cloudflare/d1/migrations/0004_huong_do_catalogs.sql",
+      "sha256": "5249f7ba69cfa4962f8bfdf00896308a46b310249b71e09ecbdceeb651d72999"
+    },
+    {
+      "file": "cloudflare/d1/migrations/0005_reject_identity_replacement.sql",
+      "sha256": "73438fdff4aef6da2307e97efc1f75828eabeb703669706ffd2862c479165e7f"
+    }
+  ],
+  "tables": [
+    "attachments",
+    "audit_logs",
+    "expedite_document_tasks",
+    "expedite_documents",
+    "extension_requests",
+    "import_job_rows",
+    "import_jobs",
+    "leaders",
+    "organization_units",
+    "platform_admins",
+    "profiles",
+    "source_documents",
+    "task_coordinating_units",
+    "task_progress_updates",
+    "task_sources",
+    "tasks",
+    "tenant_member_roles",
+    "tenant_memberships",
+    "tenants",
+    "user_unit_assignments"
+  ],
+  "sqliteIntegrity": {
+    "triggers": 63,
+    "indexesIncludingAutoIndexes": 72,
+    "foreignKeyColumns": 99
+  },
+  "tests": {
+    "d1Local": {
+      "passed": 30,
+      "failed": 0,
+      "cases": [
+        "B1 migrations on real LOCAL D1/workerd applies all five migrations once and leaves only official catalog data before fixtures",
+        "B1 migrations on real LOCAL D1/workerd matches every official CSV field, including capitalization, without copying UI task mocks",
+        "B1 migrations on real LOCAL D1/workerd records a schema/seed manifest before QA-only tenants and identities are inserted",
+        "B1 migrations on real LOCAL D1/workerd creates synthetic tenant A/B fixtures only in this isolated QA database",
+        "B1 migrations on real LOCAL D1/workerd allows repeated catalog codes across tenants but rejects duplicates inside one tenant",
+        "B1 migrations on real LOCAL D1/workerd supports multi-level TreeView while rejecting self/long cycles, cross-tenant parents and moves",
+        "B1 migrations on real LOCAL D1/workerd prevents role escalation to SUPER_ADMIN and assignment to another tenant membership/unit",
+        "B1 migrations on real LOCAL D1/workerd makes membership identity, provider identity, record IDs and tenant ownership immutable",
+        "B1 migrations on real LOCAL D1/workerd rejects every cross-tenant task reference, including actor, owner, document, source and leader",
+        "B1 migrations on real LOCAL D1/workerd rejects invalid calendar dates, missing leaders, invalid progress and partial completion",
+        "B1 migrations on real LOCAL D1/workerd does not multiply tasks via coordinating units or accept lead/cross-tenant coordinators",
+        "B1 migrations on real LOCAL D1/workerd keeps all progress and expedite links within their tenant and unique per document/task",
+        "B1 migrations on real LOCAL D1/workerd keeps pending/rejected extensions on the original due date and allows only one pending",
+        "B1 migrations on real LOCAL D1/workerd requires explicit approval evidence and preserves the last approved date during the next request",
+        "B1 migrations on real LOCAL D1/workerd requires a real completion date, actor and correct due snapshot and locks recorded completion",
+        "B1 migrations on real LOCAL D1/workerd enforces attachment owner, tenant FK and tenant-prefixed private object key metadata",
+        "B1 migrations on real LOCAL D1/workerd scopes import jobs, row references and idempotency keys to the tenant",
+        "B1 migrations on real LOCAL D1/workerd makes audit append-only, validates actor membership and separates platform scope",
+        "B1 migrations on real LOCAL D1/workerd rejects INSERT OR REPLACE attempts to rewrite audit history",
+        "B1 migrations on real LOCAL D1/workerd rejects implicit replacement of tenant-owned records, including unreferenced units and original deadlines",
+        "B1 migrations on real LOCAL D1/workerd rolls back an entire D1 batch when a dependent tenant FK fails",
+        "B1 migrations on real LOCAL D1/workerd commits an admin update with its audit atomically and rolls back on audit validation failure",
+        "B1 internal Worker authorization against LOCAL D1 fails closed without a verifier and does not trust bearer/tenant/DEMO headers",
+        "B1 internal Worker authorization against LOCAL D1 allows tenant A reads only in A and cannot access a task in B by changing the ID",
+        "B1 internal Worker authorization against LOCAL D1 supports one identity in multiple tenants with different roles and no context leakage",
+        "B1 internal Worker authorization against LOCAL D1 keeps Office Editor, Confirmer, Viewer and Tenant Admin capabilities distinct",
+        "B1 internal Worker authorization against LOCAL D1 does not give Super Admin access to any tenant task without explicit tenant membership/role",
+        "B1 internal Worker authorization against LOCAL D1 honors membership suspension immediately, including a previously issued internal context",
+        "B1 internal Worker authorization against LOCAL D1 honors profile/tenant suspension and role revocation without using cached permissions",
+        "B1 internal Worker authorization against LOCAL D1 has no invalid foreign keys after all allowed/denied mutations and persists across restart"
+      ]
+    },
+    "unitPassed": 34,
+    "browserPassed": 9,
+    "build": "passed"
+  },
+  "localCatalogDatabase": {
+    "engine": "Cloudflare D1 local / workerd",
+    "localOnly": true,
+    "counts": {
+      "tenants": 1,
+      "organization_units": 11,
+      "leaders": 3,
+      "task_sources": 3,
+      "profiles": 0,
+      "tenant_memberships": 0,
+      "platform_admins": 0,
+      "tasks": 0,
+      "attachments": 0,
+      "import_jobs": 0,
+      "d1_migrations": 5
+    },
+    "foreignKeyViolations": []
+  },
+  "preservation": {
+    "filesChecked": 42,
+    "changes": [],
+    "rootWorkerAndConfigUnchanged": true
+  },
+  "sensitivePatternFindings": [],
+  "brokenMarkdownLinks": [],
+  "filesAdded": [
+    "cloudflare/d1/migrations/0001_tenant_identity_and_administration.sql",
+    "cloudflare/d1/migrations/0002_business_foundation.sql",
+    "cloudflare/d1/migrations/0003_integrity_guards.sql",
+    "cloudflare/d1/migrations/0004_huong_do_catalogs.sql",
+    "cloudflare/d1/migrations/0005_reject_identity_replacement.sql",
+    "docs/cloudflare/D1_B1.md",
+    "docs/cloudflare/wrangler.d1-test.bindings.example.jsonc",
+    "docs/qa/D1_B1.md",
+    "docs/qa/D1_B1_RESULTS.json",
+    "scripts/inspect-d1-local.mjs",
+    "scripts/local-workerd-runtime.mjs",
+    "server/auth/authorization.ts",
+    "server/auth/permissions.ts",
+    "server/data/tenant-tasks.ts",
+    "tests/d1/schema.integration.test.ts",
+    "tests/worker/authorization.test.ts",
+    "vitest.d1.config.ts",
+    "wrangler.d1-local.jsonc",
+    "wrangler.d1-test.example.jsonc"
+  ],
+  "filesModified": [
+    ".gitignore",
+    "README.md",
+    "README_BAT_DAU.md",
+    "docs/IMPLEMENTATION_PLAN.md",
+    "docs/cloudflare/MASTER_PROMPT.md",
+    "docs/cloudflare/README.md",
+    "docs/cloudflare/REQUIREMENTS_TRACEABILITY.md",
+    "docs/product/00_DOC_TRUOC.md",
+    "docs/product/00_START_HERE.md",
+    "package.json",
+    "prompts/02_TAO_DATABASE_API_DANG_NHAP.md",
+    "scripts/wrangler-local.mjs",
+    "server/env.ts"
+  ],
+  "remoteMigrationRun": false,
+  "realAuthEnabled": false,
+  "newBusinessEndpoints": false,
+  "previewBindingActive": false,
+  "pendingLocalMigrations": 0,
+  "changesCommitted": false
+}

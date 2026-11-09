@@ -1,5 +1,9 @@
 # BẮT ĐẦU Ở ĐÂY — DỰ ÁN CLOUDFLARE HIỆN CÓ
 
+> **B1.2, 09/11/2026:** D1 TEST `theodoinhiemvu-d1-test` (UUID `649fd0db-7fd3-4551-bfac-f3fccc408373`) đã áp dụng đủ 5 migration. Có 20 bảng ứng dụng, đúng seed 11/3/3; không profile/task/tenant A/B. FK check và quick_check đạt; integrity_check bị D1 từ chối SQLITE_AUTH, không đánh dấu đạt. Chỉ chuẩn bị binding Preview local, chưa push/deploy/Auth/R2. [Báo cáo B1.2 và hướng dẫn Preview](../qa/D1_B1_2.md). Các trạng thái B1/A.2 cũ bên dưới là lịch sử trước B1.2.
+
+> **Cập nhật 09/11/2026:** A/Preview đã nghiệm thu. B1 D1 local đã có 5 migrations/20 bảng và kiểm thử; xem [thiết kế B1](../cloudflare/D1_B1.md). Chưa migration remote hoặc Auth B2/C/D/E; UI tiếp tục DEMO. Yêu cầu B1 trực tiếp mới nhất ưu tiên hơn các đoạn lộ trình A/B lịch sử bên dưới.
+
 Mục tiêu: theo dõi/đôn đốc nhiệm vụ cho Hương Đô trước, mở rộng nhiều cơ quan với dữ liệu và quyền riêng. Giữ sản phẩm/UI đang có, tích hợp từng bước; không tạo lại dự án.
 
 Đọc [hướng dẫn ưu tiên](00_DOC_TRUOC.md), [master đầy đủ](../cloudflare/MASTER_PROMPT.md), [kế hoạch hiện hành](../IMPLEMENTATION_PLAN.md) và [bảng truy vết](../cloudflare/REQUIREMENTS_TRACEABILITY.md).

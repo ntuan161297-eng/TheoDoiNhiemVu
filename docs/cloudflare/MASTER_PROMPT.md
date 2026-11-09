@@ -1,5 +1,7 @@
 # MASTER PROMPT — TÍCH HỢP CLOUDFLARE WORKERS STATIC ASSETS FULL-STACK VÀO PHẦN MỀM HIỆN TẠI
 
+> **Phê duyệt mới 09/11/2026:** A/Preview đã nghiệm thu; B1 migration/D1 local được phép và đã kiểm thử, xem [B1](D1_B1.md). B2/Auth, C/D/E, push/deploy và remote migration chưa được phép tự thực hiện. Mục 10 bên dưới giữ nguyên yêu cầu lịch sử A, không phải ranh giới hiện hành B1.
+
 > **Bản hợp nhất ngày 06/11/2026:** [yêu cầu Chặng A mới nhất](STAGE_A_WORKERS_REQUEST.md) thay kiến trúc Pages/Functions bằng Workers Static Assets + Worker API, giữ nguyên yêu cầu đa tenant/nghiệp vụ và lộ trình A–E. [Master gốc nguyên văn](../archive/2026-11-06-before-workers/docs/cloudflare/MASTER_PROMPT.md) được bảo toàn để đối chiếu. Chỉ local Chặng A được phép; Preview và B phải chờ nghiệm thu.
 
 ## 1. Bối cảnh

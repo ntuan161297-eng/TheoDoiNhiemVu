@@ -10,15 +10,20 @@
     "not_found_handling": "single-page-application",
     "run_worker_first": ["/api", "/api/*"]
   },
-  // No real D1/R2 resources, credentials or remote bindings in Stage A.
+  // Production remains without D1/R2 bindings. B1.2 binds only the approved TEST in previews.
   "vars": {
     "APP_ENV": "production"
   },
   // Worker Previews (Wrangler >= 4.135); not a named environment or Version URL.
-  // Never add production resources here. Stage A has no DB, R2 or Auth secrets.
+  // Never add Production resources here. Auth/R2 are not enabled in B1.2.
   "previews": {
     "vars": { "APP_ENV": "preview" },
-    "d1_databases": [],
+    "d1_databases": [{
+      "binding": "DB",
+      "database_name": "theodoinhiemvu-d1-test",
+      "database_id": "649fd0db-7fd3-4551-bfac-f3fccc408373",
+      "migrations_dir": "cloudflare/d1/migrations"
+    }],
     "r2_buckets": []
   }
 }
